@@ -1,5 +1,9 @@
 {
     "users":[
-        {"id":1,"username":"hermann", "password":"hermann001"}
+        {"id":1,"username":"hermann", "password":"hermann001"},
+        {"id":2,"username":"Oscar", "password":"oscar001"},
+        {"id":3,"username":"Adrien", "password":"Adrien001"},
+        {"id":4,"username":"Arlandon", "password":"Arlandon001"}
+
     ]
 }
