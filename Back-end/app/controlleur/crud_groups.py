@@ -1,0 +1,90 @@
+from flask import request
+from flask_restx import Namespace, Resource, fields
+from app.modele.model_groups import Groups  
+from app.modele.model_members import Members  
+import base64
+groups_ns = Namespace('groups', description="Gestion des groupes")
+
+group_model = groups_ns.model(
+    "Group",
+    {
+        "id": fields.Integer(readOnly=True, description="ID du groupe"),
+        "Id_admin": fields.Integer(required=True, description="ID de l'admin associé"),
+        "Name_group": fields.String(required=True, description="Nom du groupe"),
+        "Fonction": fields.String(required=True, description="Fonction du groupe"),
+    },
+)
+
+@groups_ns.route("/")
+class GroupsList(Resource):
+    @groups_ns.marshal_with(group_model, envelope='groups')
+    def get(self):
+        
+        all_groups = Groups.query.all()
+        return all_groups
+
+    @groups_ns.marshal_with(group_model, code=201)
+    @groups_ns.expect(group_model, validate=True)
+    def post(self):
+      
+        data = request.get_json()
+        new_group = Groups(
+            Id_admin=data['Id_admin'],
+            Name_group=data['Name_group'],
+            Fonction=data['Fonction'],
+        )
+        new_group.save()
+        return new_group, 201
+
+@groups_ns.route('/<int:id>')
+class GroupResource(Resource):
+    @groups_ns.marshal_with(group_model)
+    def get(self, id):
+      
+        group = Groups.query.get_or_404(id)
+        return group
+
+    @groups_ns.marshal_with(group_model)
+    @groups_ns.expect(group_model, validate=True)
+    def put(self, id):
+        
+        group_to_update = Groups.query.get_or_404(id)
+        data = request.get_json()
+
+        group_to_update.update(
+            Name_group=data.get('Name_group', group_to_update.Name_group),
+            Fonction=data.get('Fonction', group_to_update.Fonction)
+        )
+        return group_to_update, 200
+
+    def delete(self, id):
+        
+        group_to_delete = Groups.query.get_or_404(id)
+        group_to_delete.delete()
+        return {"message": "Groupe supprimé avec succès"}, 200
+
+@groups_ns.route('/<int:group_id>/members')
+class GroupMembers(Resource):
+    def get(self, group_id):
+      
+        group = Groups.query.get_or_404(group_id)
+
+        members = group.members
+
+        result = [
+            {
+                "id": member.id,
+                "Id_users": member.Id_users,
+                "Name": member.Name,
+                "First_name": member.First_name,
+                "Adress": member.Adress,
+                "Gender": member.Gender,
+                "Phone": str(member.Phone), 
+                "Image": base64.b64encode(member.Image).decode('utf-8') if member.Image else None
+            }
+            for member in members
+        ]
+
+        return {"members": result}, 200
+
+
