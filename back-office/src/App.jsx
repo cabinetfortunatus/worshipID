@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import './App.css'
 import Login from './pages/login'
 import Home from './pages/home'
@@ -7,9 +6,14 @@ import Event from './pages/event'
 import Users from './pages/users'
 import Attendance from './pages/attendance'
 import Menu from './pages/menu'
+import Group from './pages/groups'
+import Member from './pages/members'
 import {RouterProvider, createBrowserRouter} from 'react-router-dom'
+import { RequireAuth } from 'react-auth-kit'
+
 
 function App() {
+
 
   const router =  createBrowserRouter([
     {
@@ -18,7 +22,7 @@ function App() {
     },
     {
       path:'/home',
-      element: <Home />,
+      element: <RequireAuth loginPath='/'> <Home /> </RequireAuth>,
       children:[
         {
           path:'',
@@ -31,6 +35,14 @@ function App() {
         {
           path:'event',
           element:<Event /> ,
+        },
+        {
+          path:'group',
+          element:<Group /> ,
+        },
+        {
+          path:'member',
+          element:<Member /> ,
         },
         {
           path:'attendance',

@@ -1,9 +1,61 @@
 {
-    "users":[
-        {"id":1,"username":"hermann", "password":"hermann001"},
-        {"id":2,"username":"Oscar", "password":"oscar001"},
-        {"id":3,"username":"Adrien", "password":"Adrien001"},
-        {"id":4,"username":"Arlandon", "password":"Arlandon001"}
-
-    ]
+  "users": [
+    {
+      "id_admin": 2,
+      "Username": "Oscar",
+      "Password": "oscar001",
+      "Image": "sary.png",
+      "id": "ca8b"
+    },
+    {
+      "id_admin": 3,
+      "Username": "Adrien",
+      "Password": "Adrien001",
+      "Image": "sary.png",
+      "id": "1bad"
+    },
+    {
+      "id": "8f38",
+      "username": "",
+      "password": ""
+    }
+  ],
+  "members": [
+    {
+      "id": "1",
+      "Name": "Hermann",
+      "First_name": "jean",
+      "Adress": "ankatso",
+      "Gender": "male",
+      "Phone": "033365626262",
+      "Image": "sary"
+    },
+    {
+      "id": "2",
+      "Name": "Adrien",
+      "First_name": "Avotra",
+      "Adress": "ankatso",
+      "Gender": "male",
+      "Phone": "033365626262",
+      "Image": "sary"
+    },
+    {
+      "id": "3",
+      "Name": "Oscar",
+      "First_name": "Houssene",
+      "Adress": "67 ha",
+      "Gender": "male",
+      "Phone": "033365626262",
+      "Image": "sary"
+    },
+    {
+      "id": "4",
+      "Name": "Arlandon",
+      "First_name": "Fabrice",
+      "Adress": "Ivato",
+      "Gender": "male",
+      "Phone": "033365626262",
+      "Image": "sary"
+    }
+  ]
 }

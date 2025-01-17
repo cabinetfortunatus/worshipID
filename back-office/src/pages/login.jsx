@@ -1,19 +1,31 @@
 import {useState} from 'react'
+import { Authentication } from '../auth/auth';
 import church from '../assets/churchLottie.json'
 import { Player } from '@lottiefiles/react-lottie-player'
 import cloud from '../assets/images/cloud.png'
 import {Axios} from '../api/axios'
+import { PulseLoader } from 'react-spinners';
 function Login(){
 const [username, setUsername] = useState('')
 const [showpass, setShowpass] = useState(false)
 const [password, setPassword] = useState('')
 const axios = Axios()
+const [isLogLoading, setisLogLoading] = useState(false)
+const {DoLogin, error_msg} = Authentication()
 
 const handleSubmit = async (e) =>{
     e.preventDefault()
     alert('test') 
 }
-
+const handleLogin = async (e) => {
+    e.preventDefault();
+    setisLogLoading(true)
+    await DoLogin(username, password).finally(() => {setisLogLoading(false)})
+   
+    console.log({username, password, error_msg})
+    
+  }
+  
 const buttonShowPass = () => {
     setShowpass(!showpass)
 }
@@ -69,8 +81,8 @@ return(<>
                             }
                         </button>
                     </div>
-
-                    <button className='mb-2 rounded-md bg-blue-500 px-4 py-2 text-white font-semibold'>Connecter</button>
+                    <div className='w-full my-4 text-sm flex items-center text-red-600 justify-center'>{error_msg}</div>
+                    <button className='mb-2 rounded-md bg-blue-500 px-4 py-2 w-32 mb-4 text-white font-semibold' onClick={handleLogin}>{isLogLoading ? (<PulseLoader size={10} color='#fff' />):'Se connecter' }</button>
                 </form>
             </div>
             <div className='hidden md:flex items-center justify-center bg-white w-full h-full rounded-tr-xl rounded-br-xl'>
