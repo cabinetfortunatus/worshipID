@@ -4,7 +4,7 @@ from app.modele.model_presence import Presence
 from app.modele.model_members import Members
 import base64
 from app.controlleur.crud_members import members_ns
-
+from app.configuration.exts import db
 
 presence_ns = Namespace('presence', description="Espace pour gérer les présences")
 
@@ -25,7 +25,12 @@ class PresenceList(Resource):
     @presence_ns.marshal_with(presence_model, envelope='presences')
     def get(self):
         all_presences = Presence.query.all()
-        presence_list = [
+        presence_list = []
+        for presence in all_presences:
+            if not presence.member:
+                continue
+            
+        presence_list.append(
             {
                 "id": presence.id,
                 "Id_event": presence.Id_event,
@@ -38,10 +43,11 @@ class PresenceList(Resource):
                     "Gender": presence.member.Gender,
                     "Phone": str(presence.member.Phone),
                     "Image": base64.b64encode(presence.member.Image).decode('utf-8') if presence.member.Image else None
+                    if presence.member.Image else None,
                 }
             }
-            for presence in all_presences
-        ]
+            
+        )
         return presence_list
 
     @presence_ns.marshal_with(presence_model, code=201)

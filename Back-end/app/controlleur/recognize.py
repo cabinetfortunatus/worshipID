@@ -64,7 +64,8 @@ def load_members_from_db():
                     encoding = face_recognition.face_encodings(image_rgb)[0]
                     known_encodings.append(encoding)
                     known_names.append(f"{member.Name} {member.First_name}")
-
+                    print(f"Encodage du visage de {member.Name} {member.First_name} ajouté avec succès.")
+                    
                 except Exception as e:
                     print(f"Erreur lors du traitement de l'image pour {member.Name}: {e}")
             else:
@@ -99,7 +100,7 @@ def process_frames(Id_event, app):
 
                                 try:
                                     event = Event.query.get(Id_event)
-                                    if event:
+                                    if event.target_type == "all_members":
                                         member = Members.query.filter_by(Name=name.split()[0], First_name=name.split()[1]).first()
                                         if member:
                                            
@@ -111,6 +112,7 @@ def process_frames(Id_event, app):
                                                 )
                                                 db.session.add(presence)
                                                 db.session.commit()
+                                                
                                     elif event.target_type == "group":
                                         group = Groups.query.get(event.Id_group)
                                         if group and member_is_in_group(name, group):
@@ -124,6 +126,8 @@ def process_frames(Id_event, app):
                                                     )
                                                     db.session.add(presence)
                                                     db.session.commit()
+                                                    
+                                                
                                 except SQLAlchemyError as e:
                                     print(f"Erreur lors de l'ajout à la base de données : {e}")
                                     db.session.rollback()
@@ -183,17 +187,19 @@ def start_event(id_event):
         import base64
 
         members_info = [
-            {
-                "Id_member": p.Id_member,
-                "Name": p.member.Name,
-                "First_name": p.member.First_name,
-                "Adress": p.member.Adress,
-                "Gender": p.member.Gender,
-                "phone" : str(p.member.Phone),
-                "Image": base64.b64encode(p.member.Image).decode('utf-8') if p.member.Image else None
-            }
-            for p in presences
-        ]
+    {
+        "id": p.member.id if p.member else None,
+        "Name": p.member.Name if p.member else None,
+        "First_name": p.member.First_name if p.member else None,
+        "Adress": p.member.Adress if p.member else None,
+        "Gender": p.member.Gender if p.member else None,
+        "Phone": str(p.member.Phone) if p.member else None,
+        "Image": base64.b64encode(p.member.Image).decode("utf-8") if p.member and p.member.Image else None,
+    }
+        for p in presences if p.member  # Exclure les entrées sans membre associé
+    ]
+
+        
 
         return jsonify({"message": f"Événement {event.Name_event} démarré, reconnaissance faciale activée.", "presences": members_info}), 200
 
