@@ -1,15 +1,13 @@
 from app.configuration.exts import db
-from app.modele.model_groups import Groups  # Assurez-vous que ce modèle est bien défini
-from app.modele.model_members import Members  # Assurez-vous que ce modèle est bien défini
+from app.modele.model_groups import Groups  
+from app.modele.model_members import Members 
 
-# Table de liaison pour la relation many-to-many entre Event et Member
 event_member = db.Table(
     'event_member',
     db.Column('event_id', db.Integer, db.ForeignKey('events.id'), primary_key=True),
     db.Column('member_id', db.Integer, db.ForeignKey('members.id'), primary_key=True)
 )
 
-# Table de liaison pour la relation many-to-many entre Event et Group
 event_group = db.Table(
     'event_group',
     db.Column('event_id', db.Integer, db.ForeignKey('events.id'), primary_key=True),
@@ -31,6 +29,8 @@ class Event(db.Model):
     
     groups = db.relationship('Groups', secondary=event_group, back_populates='events')
     members = db.relationship('Members', secondary=event_member, back_populates='events')
+    absences = db.relationship("Absence", back_populates="event")  
+    presences = db.relationship('Presence', back_populates='event')  
 
     def __repr__(self):
         return f"<Event {self.Name_event}>"
@@ -49,12 +49,11 @@ class Event(db.Model):
         self.Date = Date
         self.Duration = Duration
         self.target_type = target_type
-        self.Id_group = Id_group  # Mise à jour de l'ID du groupe, si applicable
+        self.Id_group = Id_group  
         db.session.commit()
 
     def add_group(self, group_ids):
-        """Ajouter un ou plusieurs groupes à un événement."""
-        # group_ids peut être une liste d'IDs de groupes
+     
         groups_to_add = Groups.query.filter(Groups.id.in_(group_ids)).all()
         for group in groups_to_add:
             if group not in self.groups:
@@ -62,30 +61,30 @@ class Event(db.Model):
         db.session.commit()
 
     def remove_group(self, group_id):
-        """Supprimer un groupe spécifique d'un événement."""
+    
         group_to_remove = Groups.query.get(group_id)
         if group_to_remove in self.groups:
             self.groups.remove(group_to_remove)
         db.session.commit()
 
     def add_all_members(self):
-        """Associer tous les membres à l'événement."""
-        members = Members.query.all()  # Récupère tous les membres
+    
+        members = Members.query.all()  
         for member in members:
-            # Ajouter chaque membre à l'événement
+           
             if member not in self.members:
                 self.members.append(member)
         db.session.commit()
 
     def add_member(self, member_id):
-        """Ajouter un membre spécifique à l'événement."""
+        
         member = Members.query.get(member_id)
         if member and member not in self.members:
             self.members.append(member)
         db.session.commit()
 
     def remove_member(self, member_id):
-        """Supprimer un membre spécifique de l'événement."""
+        
         member = Members.query.get(member_id)
         if member in self.members:
             self.members.remove(member)

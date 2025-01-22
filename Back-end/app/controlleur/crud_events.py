@@ -25,14 +25,14 @@ event_model = event_ns.model(
 class EventList(Resource):
     @event_ns.marshal_with(event_model)
     def get(self):
-        """Récupérer tous les événements"""
+       
         all_events = Event.query.all()
         return all_events
 
     @event_ns.expect(event_model)
     @event_ns.marshal_with(event_model)
     def post(self):
-        """Créer un nouvel événement"""
+        
         data = request.form or request.get_json()
 
         Id_admin = data.get("Id_admin")
@@ -81,16 +81,16 @@ class EventList(Resource):
 class EventResource(Resource):
     @event_ns.marshal_with(event_model)
     def get(self, id):
-        """Récupérer un événement par son ID"""
+       
         event = Event.query.get_or_404(id)
         return event
 
     @event_ns.expect(event_model)
     @event_ns.marshal_with(event_model)
     def put(self, id):
-        """Mettre à jour un événement"""
+        
         event = Event.query.get_or_404(id)
-        data = request.get_json()
+        data = request.form or request.get_json()
 
         event.Id_admin = data.get("Id_admin", event.Id_admin)
         event.Code_event = data.get("Code_event", event.Code_event)
@@ -119,7 +119,7 @@ class EventResource(Resource):
             return {"message": "Une erreur est survenue lors de la mise à jour de l'événement."}, 500
 
     def delete(self, id):
-        """Supprimer un événement"""
+        
         event = Event.query.get_or_404(id)
         try:
             event.delete()

@@ -36,13 +36,13 @@ class SignUp(Resource):
         admins = Admin.query.all()
         for admin in admins:
             if admin.Image:
-                admin.Image = b64encode(admin.Image).decode("utf-8")  # Convertir les images en base64
+                admin.Image = b64encode(admin.Image).decode("utf-8") 
         return admins
 
     @Admin_ns.expect(Admin_model)
     @Admin_ns.marshal_with(Admin_model)
     def post(self):
-        """Créer un nouvel administrateur."""
+        
         data = request.form or request.get_json()
         Username = data.get("Username")
         Permission = data.get("Permission")
@@ -71,7 +71,7 @@ class SignUp(Resource):
 class SignUpById(Resource):
     @Admin_ns.marshal_with(Admin_model)
     def get(self, id):
-        """Obtenir un admin par ID."""
+        
         admin = Admin.query.get_or_404(id)
         if admin.Image:
             admin.Image = b64encode(admin.Image).decode("utf-8")
@@ -79,7 +79,7 @@ class SignUpById(Resource):
 
     @Admin_ns.marshal_with(Admin_model)
     def delete(self, id):
-        """Supprimer un admin par ID."""
+      
         admin = Admin.query.get_or_404(id)
         db.session.delete(admin)
         db.session.commit()
@@ -88,7 +88,7 @@ class SignUpById(Resource):
     @Admin_ns.expect(Admin_model)
     @Admin_ns.marshal_with(Admin_model)
     def put(self, id):
-        """Mettre à jour un admin par ID."""
+        
         admin = Admin.query.get_or_404(id)
         data = request.form or request.get_json()
 
@@ -121,7 +121,7 @@ class SignUpById(Resource):
 class Login(Resource):
     @jwt_required()
     def get(self):
-        """Vérifier l'état de connexion."""
+        
         current_user = get_jwt_identity()
         admin = Admin.query.filter_by(Username=current_user).first()
         if admin:
@@ -134,7 +134,7 @@ class Login(Resource):
 
     @Admin_ns.expect(Login_model)
     def post(self):
-        """Authentifier un utilisateur."""
+        
         data = request.form or request.get_json()
         Username = data.get("Username")
         Password = data.get("Password")
