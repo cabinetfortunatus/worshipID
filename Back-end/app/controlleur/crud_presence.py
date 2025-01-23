@@ -6,6 +6,7 @@ import base64
 from app.controlleur.crud_members import members_ns
 from app.configuration.exts import db
 
+
 presence_ns = Namespace('presence', description="Espace pour gérer les présences")
 
 member_model = members_ns.models['Member']
@@ -25,12 +26,7 @@ class PresenceList(Resource):
     @presence_ns.marshal_with(presence_model, envelope='presences')
     def get(self):
         all_presences = Presence.query.all()
-        presence_list = []
-        for presence in all_presences:
-            if not presence.member:
-                continue
-            
-        presence_list.append(
+        presence_list = [
             {
                 "id": presence.id,
                 "Id_event": presence.Id_event,
@@ -43,11 +39,10 @@ class PresenceList(Resource):
                     "Gender": presence.member.Gender,
                     "Phone": str(presence.member.Phone),
                     "Image": base64.b64encode(presence.member.Image).decode('utf-8') if presence.member.Image else None
-                    if presence.member.Image else None,
                 }
             }
-            
-        )
+            for presence in all_presences
+        ]
         return presence_list
 
     @presence_ns.marshal_with(presence_model, code=201)
@@ -98,24 +93,3 @@ class PresenceResource(Resource):
             }
         }
         return presence_info
-
-    # @presence_ns.marshal_with(presence_model)
-    # @presence_ns.expect(presence_model)
-    # def put(self, id):
-    #     """Mettre à jour une présence"""
-    #     presence_update = Presence.query.get_or_404(id)
-    #     data = request.get_json()
-        
-    #     presence_update.Id_event = data.get('Id_event', presence_update.Id_event)
-    #     presence_update.Id_member = data.get('Id_member', presence_update.Id_member)
-        
-    #     db.session.commit()
-    #     return presence_update
-
-    # @presence_ns.marshal_with(presence_model)
-    # def delete(self, id):
-    #     """Supprimer une présence"""
-    #     presence_delete = Presence.query.get_or_404(id)
-    #     db.session.delete(presence_delete)
-    #     db.session.commit()
-    #     return presence_delete

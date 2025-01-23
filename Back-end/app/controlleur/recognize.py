@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, current_app
+from flask import Blueprint, jsonify, current_app, send_file
 import numpy as np
 import cv2
 import face_recognition
@@ -28,12 +28,15 @@ try:
     model = YOLO(model_path)
     model.to(device)
     model.overrides['verbose'] = False
-    # print("[INFO] Modèle YOLO chargé avec succès.")
+
 except Exception as e:
     print(f"[ERROR] Échec du chargement du modèle YOLO : {e}")
 
 known_encodings = []
 known_names = []
+active_events = {}
+stopped_events = {}
+stop_capture = {}
 
 cap = cv2.VideoCapture()
 frame_queue = queue.Queue(maxsize=2)
@@ -64,8 +67,7 @@ def load_members_from_db():
                     encoding = face_recognition.face_encodings(image_rgb)[0]
                     known_encodings.append(encoding)
                     known_names.append(f"{member.Name} {member.First_name}")
-                    print(f"Encodage du visage de {member.Name} {member.First_name} ajouté avec succès.")
-                    
+
                 except Exception as e:
                     print(f"Erreur lors du traitement de l'image pour {member.Name}: {e}")
             else:
@@ -100,38 +102,28 @@ def process_frames(Id_event, app):
 
                                 try:
                                     event = Event.query.get(Id_event)
-                                    if event.target_type == "all_members":
+                                    if event:
                                         member = Members.query.filter_by(Name=name.split()[0], First_name=name.split()[1]).first()
                                         if member:
-                                           
-                                            presence_exists = db.session.query(Presence).filter_by(Id_event=event.id, Id_member=member.id).first()
-                                            if not presence_exists:
-                                                presence = Presence(
-                                                    Id_event=event.id,
-                                                    Id_member=member.id
-                                                )
-                                                db.session.add(presence)
-                                                db.session.commit()
-                                                
-                                    elif event.target_type == "group":
-                                        group = Groups.query.get(event.Id_group)
-                                        if group and member_is_in_group(name, group):
-                                            member = Members.query.filter_by(Name=name.split()[0], First_name=name.split()[1]).first()
-                                            if member:
+                                            if event.target_type == "all_members":
                                                 presence_exists = db.session.query(Presence).filter_by(Id_event=event.id, Id_member=member.id).first()
                                                 if not presence_exists:
-                                                    presence = Presence(
-                                                        Id_event=event.id,
-                                                        Id_member=member.id
-                                                    )
+                                                    presence = Presence(Id_event=event.id, Id_member=member.id)
                                                     db.session.add(presence)
                                                     db.session.commit()
-                                                    
-                                                
+
+                                            elif event.target_type == "group":
+                                                group = Groups.query.get(event.Id_group)
+                                                if group and member_is_in_group(name, group):
+                                                    presence_exists = db.session.query(Presence).filter_by(Id_event=event.id, Id_member=member.id).first()
+                                                    if not presence_exists:
+                                                        presence = Presence(Id_event=event.id, Id_member=member.id)
+                                                        db.session.add(presence)
+                                                        db.session.commit()
+
                                 except SQLAlchemyError as e:
                                     print(f"Erreur lors de l'ajout à la base de données : {e}")
                                     db.session.rollback()
-
                             else:
                                 name = "Inconnu"
                                 color = (0, 0, 255)
@@ -144,7 +136,7 @@ def process_frames(Id_event, app):
 
 def start_video_processing():
     global cap
-    cap.open("http://192.168.1.171:8080/video")  
+    cap.open("http://192.168.88.8:8080/video")  
     if not cap.isOpened():
         print("Erreur : Impossible d'ouvrir le flux vidéo.")
         return
@@ -174,77 +166,110 @@ def wait_for_frame():
 
 @recognition_bp.route('/start_event/<int:id_event>', methods=['POST'])
 def start_event(id_event):
+    global active_events
+
     with current_app.app_context():
         event = Event.query.get(id_event)
         if not event:
             return jsonify({"message": "Événement non trouvé."}), 404
+
+        if id_event in active_events and active_events[id_event]['active']:
+            return jsonify({"message": f"La reconnaissance faciale pour l'événement '{event.Name_event}' est déjà activée."}), 200
+
         load_members_from_db()
+
         app = current_app._get_current_object()
         threading.Thread(target=process_frames, args=(id_event, app), daemon=True).start()
         threading.Thread(target=start_video_processing, daemon=True).start()
+
+        active_events[id_event] = {"active": True, "start_time": time.time()}
+
         wait_for_frame()
+
         presences = Presence.query.filter_by(Id_event=id_event).all()
-        import base64
 
         members_info = [
-    {
-        "id": p.member.id if p.member else None,
-        "Name": p.member.Name if p.member else None,
-        "First_name": p.member.First_name if p.member else None,
-        "Adress": p.member.Adress if p.member else None,
-        "Gender": p.member.Gender if p.member else None,
-        "Phone": str(p.member.Phone) if p.member else None,
-        "Image": base64.b64encode(p.member.Image).decode("utf-8") if p.member and p.member.Image else None,
-    }
-        for p in presences if p.member  # Exclure les entrées sans membre associé
-    ]
+            {
+                "Id_member": p.Id_member,
+                "Name": p.member.Name,
+                "First_name": p.member.First_name,
+                "Adress": p.member.Adress,
+                "Gender": p.member.Gender,
+                "Phone": str(p.member.Phone),
+                "Image": base64.b64encode(p.member.Image).decode('utf-8') if p.member.Image else None
+            }
+            for p in presences
+        ]
 
+        return jsonify({
+            "message": f"Événement '{event.Name_event}' démarré, reconnaissance faciale activée.",
+            "presences": members_info
+        }), 200
         
-
-        return jsonify({"message": f"Événement {event.Name_event} démarré, reconnaissance faciale activée.", "presences": members_info}), 200
-
 @recognition_bp.route('/stop_event/<int:id_event>', methods=['POST'])
 def stop_event(id_event):
+    global active_events, stopped_events, stop_capture
+
     with current_app.app_context():
         event = Event.query.get(id_event)
         if not event:
             return jsonify({"message": "Événement non trouvé."}), 404
+        
+        if id_event in stopped_events and stopped_events[id_event]['stopped']:
+            return jsonify({"message": "L'événement est déjà stoppé."}), 400
+        
+        stop_capture[id_event] = True
+        
+        known_members = []
+        if event.target_type == "all_members":
+            known_members = Members.query.filter(
+                (Members.Name + ' ' + Members.First_name).in_(known_names)
+            ).all()
+        elif event.target_type == "group":
+            group = Groups.query.get(event.Id_group)
+            if not group:
+                return jsonify({"message": "Le groupe spécifié n'existe pas."}), 404
+            group_member_names = {f"{member.Name.strip()} {member.First_name.strip()}" for member in group.members}
+            known_members = Members.query.filter(
+                (Members.Name + ' ' + Members.First_name).in_(group_member_names)
+            ).all()
+        else:
+            return jsonify({"message": "Type de cible d'événement non valide."}), 400
+
+        presence_members_ids = {p.Id_member for p in Presence.query.filter_by(Id_event=event.id).all()}
+        absence_members_ids = {a.Id_member for a in Absence.query.filter_by(Id_event=event.id).all()}
 
         absences_info = []
-        for name in known_names:
-            member = Members.query.filter_by(Name=name.split()[0], First_name=name.split()[1]).first()
-            if member:
-              
-                present = any(p.Id_member == member.id for p in Presence.query.filter_by(Id_event=event.id).all())
-      
-                absent = db.session.query(Absence).filter_by(Id_event=event.id, Id_member=member.id).first()
-                if not present and not absent:
-                    absence = Absence(Id_event=event.id, Id_member=member.id)
-                    db.session.add(absence)
-                    absences_info.append({"Id_member": member.id, 
-                                          "Name": member.Name, 
-                                          "First_name": member.First_name,
-                                          "Adress": member.Adress,
-                                          "Gender": member.Gender,
-                                          "Phone": str(member.Phone),
-                                          "Image": base64.b64encode(member.Image).decode('utf-8') if member.Image else None})
+        for member in known_members:
+            if member.id not in presence_members_ids and member.id not in absence_members_ids:
+                absence = Absence(Id_event=event.id, Id_member=member.id)
+                db.session.add(absence)
+                absences_info.append({
+                    "Id_member": member.id,
+                    "Name": member.Name,
+                    "First_name": member.First_name,
+                    "Adress": member.Adress,
+                    "Gender": member.Gender,
+                    "Phone": str(member.Phone),
+                    "Image": base64.b64encode(member.Image).decode('utf-8') if member.Image else None
+                })
+        
         try:
             db.session.commit()
+            stopped_events[id_event] = {"stopped": True}
+            if id_event in active_events:
+                del active_events[id_event]
+            cap.release()
+            cv2.destroyAllWindows()
         except SQLAlchemyError as e:
             print(f"Erreur lors du commit des absences : {e}")
             db.session.rollback()
+            return jsonify({"message": "Une erreur est survenue lors de l'enregistrement des absences."}), 500
 
-        cap.release()
-        cv2.destroyAllWindows()
-        return jsonify({"message": f"L'événement {event.Name_event} est terminé.", "absences": absences_info}), 200
-
-@recognition_bp.route('/check_loaded_data', methods=['GET'])
-def check_loaded_data():
-    return jsonify({
-        "encodings_count": len(known_encodings),
-        "names": known_names
-    }), 200
+        return jsonify({"listes des absents": absences_info}), 200
 
 def member_is_in_group(name, group):
-    group_members = [member.Name + ' ' + member.First_name for member in group.members]
+
+    name = name.strip()
+    group_members = {f"{member.Name.strip()} {member.First_name.strip()}" for member in group.members}
     return name in group_members
