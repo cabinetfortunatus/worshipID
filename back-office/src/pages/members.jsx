@@ -212,10 +212,11 @@ function Member(){
             <div className="ml-4 my-4">
                 <button className=" flex items-center gap-2 w-auto p-2 bg-green-600 text-white rounded-md" onClick={handleAdd}>Ajouter un membre
                     <svg xmlns="http://www.w3.org/2000/svg" width="1.5rem" height="1.5rem" viewBox="0 0 24 24"><path fill="white" d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10s10-4.477 10-10S17.523 2 12 2m5 11h-4v4h-2v-4H7v-2h4V7h2v4h4z"></path></svg>
-                </button>
+                </button> 
+                  
             </div>
             
-            <div className="max-w-md mx-auto">   
+            <div className="relative max-w-md mx-auto">   
                 <label htmlFor="default-search" className="mb-2 text-sm font-medium text-gray-900 sr-only">Chercher...</label>
                 <div className="relative">
                     <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
@@ -231,7 +232,7 @@ function Member(){
             <DataTable 
             columns={columns} 
             data={FilteredData} 
-            title="Membres"
+            title="Membres" 
             striped
             pagination 
             />
