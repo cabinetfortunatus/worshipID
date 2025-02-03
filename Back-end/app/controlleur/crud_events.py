@@ -3,7 +3,16 @@ from flask_restx import Namespace, Resource, fields
 from app.modele.model_events import Event
 from app.modele.model_groups import Groups
 from app.configuration.exts import db
+from app.modele.model_members import Members
+from app.modele.model_presence import Presence
+from app.modele.model_absence import Absence
+from app.controlleur.crud_members import members_ns
+from app.controlleur.crud_presence import presence_ns
+from app.controlleur.crud_absence import absence_ns
 
+member_model = members_ns.models['Member']
+presence_model = presence_ns.models['Presence']
+absence_model = absence_ns.models['Absence']
 event_ns = Namespace('event', description="Espace pour la gestion des événements")
 
 event_model = event_ns.model(
@@ -25,14 +34,12 @@ event_model = event_ns.model(
 class EventList(Resource):
     @event_ns.marshal_with(event_model)
     def get(self):
-        """Récupérer tous les événements"""
         all_events = Event.query.all()
         return all_events
 
     @event_ns.expect(event_model)
     @event_ns.marshal_with(event_model)
     def post(self):
-        """Créer un nouvel événement"""
         data = request.form or request.get_json()
 
         Id_admin = data.get("Id_admin")
@@ -68,12 +75,12 @@ class EventList(Resource):
             if target_type == "all_members":
                 new_event.add_all_members()
 
-            db.session.add(new_event)  
-            db.session.commit()  
+            db.session.add(new_event)
+            db.session.commit()
             return new_event, 201
         
         except Exception as e:
-            db.session.rollback() 
+            db.session.rollback()
             print(f"Erreur lors de l'ajout de l'événement : {e}")
             return {"message": "Une erreur est survenue lors de la création de l'événement."}, 500
 
@@ -81,16 +88,14 @@ class EventList(Resource):
 class EventResource(Resource):
     @event_ns.marshal_with(event_model)
     def get(self, id):
-        """Récupérer un événement par son ID"""
         event = Event.query.get_or_404(id)
         return event
 
     @event_ns.expect(event_model)
     @event_ns.marshal_with(event_model)
     def put(self, id):
-        """Mettre à jour un événement"""
         event = Event.query.get_or_404(id)
-        data = request.get_json()
+        data = request.form or request.get_json()
 
         event.Id_admin = data.get("Id_admin", event.Id_admin)
         event.Code_event = data.get("Code_event", event.Code_event)
@@ -119,7 +124,6 @@ class EventResource(Resource):
             return {"message": "Une erreur est survenue lors de la mise à jour de l'événement."}, 500
 
     def delete(self, id):
-        """Supprimer un événement"""
         event = Event.query.get_or_404(id)
         try:
             event.delete()
@@ -129,3 +133,19 @@ class EventResource(Resource):
             db.session.rollback()
             print(f"Erreur lors de la suppression de l'événement : {e}")
             return {"message": "Une erreur est survenue lors de la suppression de l'événement."}, 500
+
+@event_ns.route("/<int:id>/MembersPresent")
+class EventMembersPresent(Resource):
+    @event_ns.marshal_with(member_model)
+    def get(self, id):
+        event = Event.query.get_or_404(id)
+        members = db.session.query(Members).join(Presence, Presence.Id_member == Members.id).filter(Presence.Id_event == id).all()
+        return members
+    
+@event_ns.route("/<int:id>/MembersAbsent")
+class EventMembersAbsent(Resource):
+    @event_ns.marshal_with(member_model)
+    def get(self, id):
+        event = Event.query.get_or_404(id)
+        members = db.session.query(Members).join(Absence, Absence.Id_member == Members.id).filter(Absence.Id_event == id).all()
+        return members

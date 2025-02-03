@@ -32,6 +32,4 @@ class Users(db.Model):
         if Password:
             self.Password = Password
             
-        
-   
         db.session.commit()

@@ -132,29 +132,28 @@ class UpdateCredentials(Resource):
 
 @users_ns.route('/Login')
 class UserLogin(Resource):
-    @users_ns.expect(Login_model)  # Modèle attendu pour valider les données entrantes
+    @users_ns.expect(Login_model)  
     def post(self):
-        # Récupération des données envoyées par l'utilisateur
+       
         data = request.form or request.get_json()
         Username = data.get('Username')
         Password = data.get('Password')
 
-        # Vérification si l'utilisateur existe dans la base
+        
         user = Users.query.filter_by(Username=Username).first()
 
-        # Validation des informations d'identification
         if user and check_password_hash(user.Password, Password):
-            # Génération des tokens JWT pour l'authentification
+           
             access_token = create_access_token(identity=user.Username)
             refresh_token = create_refresh_token(identity=user.Username)
             
-            # Retourner les tokens avec le rôle de l'utilisateur
+          
             return {
                 "access_token": access_token,
                 "refresh_token": refresh_token,
-                "Permission": user.Permission,  # Assurez-vous que ce champ existe dans le modèle
+                "Permission": user.Permission,  
             }, 200
 
-        # Message d'erreur si l'authentification échoue
+      
         return {"message": "Nom d'utilisateur ou mot de passe incorrect."}, 401
 

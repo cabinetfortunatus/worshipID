@@ -3,6 +3,7 @@ from flask_restx import Namespace, Resource, fields
 from app.modele.model_groups import Groups  
 from app.modele.model_members import Members  
 import base64
+
 groups_ns = Namespace('groups', description="Gestion des groupes")
 
 group_model = groups_ns.model(
@@ -19,28 +20,26 @@ group_model = groups_ns.model(
 class GroupsList(Resource):
     @groups_ns.marshal_with(group_model, envelope='groups')
     def get(self):
-        
-        all_groups = Groups.query.all()
+        all_groups = Groups.query.all()  
         return all_groups
 
     @groups_ns.marshal_with(group_model, code=201)
     @groups_ns.expect(group_model, validate=True)
     def post(self):
-      
-        data = request.get_json()
+        data = request.form or request.get_json()
+        
         new_group = Groups(
-            Id_admin=data['Id_admin'],
-            Name_group=data['Name_group'],
-            Fonction=data['Fonction'],
+            Id_admin=data.get('Id_admin'),
+            Name_group=data.get('Name_group'),
+            Fonction=data.get('Fonction'),
         )
-        new_group.save()
+        new_group.save()  
         return new_group, 201
 
 @groups_ns.route('/<int:id>')
 class GroupResource(Resource):
     @groups_ns.marshal_with(group_model)
     def get(self, id):
-      
         group = Groups.query.get_or_404(id)
         return group
 
@@ -49,7 +48,7 @@ class GroupResource(Resource):
     def put(self, id):
         
         group_to_update = Groups.query.get_or_404(id)
-        data = request.get_json()
+        data = request.form or request.get_json()
 
         group_to_update.update(
             Name_group=data.get('Name_group', group_to_update.Name_group),
@@ -58,7 +57,7 @@ class GroupResource(Resource):
         return group_to_update, 200
 
     def delete(self, id):
-        
+
         group_to_delete = Groups.query.get_or_404(id)
         group_to_delete.delete()
         return {"message": "Groupe supprimé avec succès"}, 200
@@ -66,9 +65,8 @@ class GroupResource(Resource):
 @groups_ns.route('/<int:group_id>/members')
 class GroupMembers(Resource):
     def get(self, group_id):
-      
+        
         group = Groups.query.get_or_404(group_id)
-
         members = group.members
 
         result = [
@@ -86,5 +84,3 @@ class GroupMembers(Resource):
         ]
 
         return {"members": result}, 200
-
-

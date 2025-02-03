@@ -11,16 +11,16 @@ class Members(db.Model):
     First_name = db.Column(db.String(30), nullable=False)
     Adress = db.Column(db.String(50), nullable=False)
     Gender = db.Column(db.String(10), nullable=False)
-    Phone = db.Column(db.Numeric(), nullable=False)
+    Phone = db.Column(db.String(), nullable=False)
     Image = db.Column(db.LargeBinary(), nullable=False)
     
-    # Relation avec Groups via la table d'association
+ 
     groups = relationship('Groups', secondary=members_groups, back_populates='members', overlaps="members_list")
     group = relationship('Groups', secondary=members_groups, viewonly=True, overlaps="groups,members")
     user = db.relationship('Users', back_populates='members', lazy = True)
     events = db.relationship('Event', secondary='event_member', back_populates='members')
-
-
+    absences = db.relationship('Absence', back_populates='member')
+    presences = db.relationship('Presence', back_populates='member')
 
     def __repr__(self):
         return f"<Member {self.Name} {self.First_name}>"

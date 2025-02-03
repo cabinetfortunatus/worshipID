@@ -18,7 +18,7 @@ def create_app():
     
     
 
-    from app.controlleur.recognition import recognition_bp
+    from app.controlleur.recognize import recognition_bp
     from app.controlleur.crud_Admin import Admin_ns
     from app.controlleur.crud_absence import absence_ns
     from app.controlleur.crud_events import event_ns
