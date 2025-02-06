@@ -162,6 +162,18 @@ class MemberResource(Resource):
 
         db.session.commit()
         return member_update
+    
+@members_ns.route('/<int:id>/groups')   
+class MemberGroupsResource(Resource):
+    def get(self, id):
+        member = Members.query.get_or_404(id)
+        groups = member.groups 
+        if not groups:
+            return {"message": "Ce membre n'est dans aucun groupe."}, 404
+
+        group_names = [group.Name_group for group in groups]
+        return {"groups": group_names}, 200
+
 
     @members_ns.marshal_with(member_model)
     def delete(self, id):
