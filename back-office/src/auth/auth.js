@@ -13,23 +13,24 @@ export const Authentication =() => {
     const DoLogin  = async  (username, password) => {
         try {
             console.log({username,password})
-            const response = await axios.post('users', {username, password})
-            const {access, refresh, Username} = response.data
+            const response = await axios.post('Admin/Login', {"Username":username, "Password":password})
+            const {access_token, refresh_token, Permission, Image, Id} = response.data
             console.log(response.data)
-            // .then(()=> {
-            //    
-                
-            // })
             Login({
-                token: access, 
+                token: access_token, 
                 expiresIn:300,
                 tokenType: 'Bearer',
-                authState: {username},
-                refreshToken: refresh,
+                authState: {username, Image, Id},
+                refreshToken: refresh_token,
                 // refreshTokenExpireIn:86400
             });
             setError_msg('');
             Navigate('/home')
+                
+    
+        
+            
+            
     
         }
         catch(error){

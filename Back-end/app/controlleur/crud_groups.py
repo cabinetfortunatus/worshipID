@@ -1,8 +1,9 @@
 from flask import request
 from flask_restx import Namespace, Resource, fields
 from app.modele.model_groups import Groups  
-from app.modele.model_members import Members  
-import base64
+from app.modele.model_members import Members 
+from app.configuration.exts import db 
+
 
 groups_ns = Namespace('groups', description="Gestion des groupes")
 
@@ -18,13 +19,13 @@ group_model = groups_ns.model(
 
 @groups_ns.route("/")
 class GroupsList(Resource):
-    @groups_ns.marshal_with(group_model, envelope='groups')
+    @groups_ns.marshal_with(group_model)
     def get(self):
         all_groups = Groups.query.all()  
         return all_groups
-
-    @groups_ns.marshal_with(group_model, code=201)
-    @groups_ns.expect(group_model, validate=True)
+        
+    @groups_ns.marshal_with(group_model)
+    @groups_ns.expect(group_model)
     def post(self):
         data = request.form or request.get_json()
         
@@ -33,7 +34,9 @@ class GroupsList(Resource):
             Name_group=data.get('Name_group'),
             Fonction=data.get('Fonction'),
         )
-        new_group.save()  
+
+        db.session.add(new_group)
+        db.session.commit()
         return new_group, 201
 
 @groups_ns.route('/<int:id>')
@@ -44,7 +47,7 @@ class GroupResource(Resource):
         return group
 
     @groups_ns.marshal_with(group_model)
-    @groups_ns.expect(group_model, validate=True)
+    @groups_ns.expect(group_model)
     def put(self, id):
         
         group_to_update = Groups.query.get_or_404(id)

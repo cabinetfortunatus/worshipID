@@ -2,17 +2,20 @@ import { useEffect, useState } from "react";
 import  {Axios} from  "../api/axios";
 import DataTable from "react-data-table-component";
 import ReactModal from 'react-modal';
-import  User from '../assets/images/user.png';
+
+
 function Users(){
     const axios =  Axios()
     const [userData, setUserData] = useState([])
     const [modIsOpen, setmodIsOpen] = useState(false)
-    const [addstate, setAddstate] = useState(false)
-    const [ImageFile, setImageFile] = useState(null)
+    const [error_msg, setError_msg] = useState("")
     const [editUser, seteditUser] = useState({
         "Username":"",
         "Password":"",
+        "confirm":"",
+        "new_password":""
     })
+   
     const getUser = async () => {
         let response = await axios.get('users')
         .then((response) => {
@@ -30,7 +33,6 @@ function Users(){
     }
     const OpenMod = (id) => {
         setmodIsOpen(true);
-        setAddstate(false)
         console.log(id)
         seteditUser(userData.filter((data) => data.id === id)[0]);
        
@@ -40,53 +42,37 @@ function Users(){
         seteditUser(null);
        
     };
-    const handleAdd = () => {
-        setmodIsOpen(true);
-        setAddstate(true);
-        seteditUser({
-            "Username":"",
-            "Password":"",
-        })
-    }
+    
     const handleValueChange = (e) => {
         const { name, value } = e.target;
         seteditUser((prev) => ({ ...prev, [name]: value })); 
         console.log(editUser)
     };
-    
-    const handleImageFile = (e) => {
-        setImageFile(e.target.files[0])
-    }
+
 
     const handleSave = (e) => {
         e.preventDefault();
         let formData = new FormData()
         formData.append("Username", editUser.Username)
-        formData.append("Password", editUser.Password)
-        formData.append("Image", ImageFile)
-        if(!addstate) {
-          console.log(formData)
-          axios.put(`users/${editUser.id}`, formData)
-            .then(() => {
-              alert('Modification effectuée');
-              CloseMod();
-            })
-            .catch((error) => {
-              console.error("Error updating user", error);
-            });
+        if(editUser.new_password !="" && editUser.new_password==editUser.confirm)
+            formData.append("Password", editUser.new_password)
+        else{
+            formData.append("Password", editUser.new_password)
         }
-        if(addstate){
-            console.log(formData)
-            axios.post(`users`, formData)
-            .then(() => {
-              alert('Ajout effectuée');
-              CloseMod();
-            })
-            .catch((error) => {
-              console.error("Error updating user", error);
-            });
-        }
+    
+        console.log(formData)
+        axios.put(`users/${editUser.id}`, formData)
+        .then(() => {
+            alert('Modification effectuée');
+            CloseMod();
+            getUser()
+        })
+        .catch((error) => {
+            console.error("Error updating user", error);
+        });
+        
     }
+
     const HandleDelete = async (id) => {
         const confirm = window.confirm(
             "Etes-vous vraiment sûr de vouloir supprimer?"
@@ -112,14 +98,6 @@ function Users(){
         {
             name: "ID",
             selector: (row) => row.id,
-        },
-        {
-            name: "Images",
-            cell: (row) => (
-                <div className="w-16 h-16 rounded-full m-[0.2rem]">
-                    <img className="object-cover rounded-full" src={User} />
-                </div>
-              ),
         },
         {
             name: "Nom d'utilisateur",
@@ -149,15 +127,10 @@ function Users(){
    
     return(<>
         <div>
-            <div className="ml-4 my-4">
-                <button className=" flex items-center gap-2 w-auto p-2 bg-blue-600 text-white rounded-md" onClick={handleAdd}>Ajouter un utilisateur
-                    <svg xmlns="http://www.w3.org/2000/svg" width="1.5rem" height="1.5rem" viewBox="0 0 24 24"><path fill="white" d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10s10-4.477 10-10S17.523 2 12 2m5 11h-4v4h-2v-4H7v-2h4V7h2v4h4z"></path></svg>
-                </button>
-            </div>
             <DataTable 
             columns={columns} 
             data={userData} 
-            title="Admin/Utilisateurs"
+            title="Utilisateurs"
             striped
             pagination 
             />
@@ -168,27 +141,27 @@ function Users(){
                     contentLabel="Modifier un utilisateur"
                     className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 h-auto w-[80%] md:w-[40%] bg-white rounde-lg border-2 p-2 shadow-md"
                     ariaHideApp={false}>
-                    <h2 className="text-lg font-semibold mb-4"> {addstate ? 'Ajouter':'Modifier'} </h2>
+                    <h2 className="text-lg font-semibold mb-4">Modifier</h2>
                     {editUser && (
                     <div className="flex flex-col w-full justify-center items-center">
                         <form className="w-[80%]" onSubmit={handleSave}>
                             <div>
-                                <label for="first_name" className="block mb-2 text-sm font-medium text-gray-900">Nom d'utilisateur:</label>
+                                <label className="block mb-2 text-sm font-medium text-gray-900">Nom d'utilisateur:</label>
                                 <input name="Username" type="text" onChange={handleValueChange} value={editUser.Username} className=" border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 " placeholder="Username" required />
                             </div>
                             <br />
                             <div>
-                                <label for="first_name" className="block mb-2 text-sm font-medium text-gray-900">Ancien mot de passe:</label>
-                                <input  name="Password" type="password" onChange={handleValueChange} value={editUser.Password} className=" border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 " placeholder="Password" required />
+                                <label  className="block mb-2 text-sm font-medium text-gray-900">Nouveau mot de passe:</label>
+                                <input name="new_password" type="password" onChange={handleValueChange} value={editUser.new_password} className=" border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 " placeholder="Password"  />
                             </div>
                             <div>
-                                <label for="first_name" className="block mb-2 text-sm font-medium text-gray-900">Mot de passe:</label>
-                                <input name="Password" type="password" onChange={handleValueChange} value={editUser.Password} className=" border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 " placeholder="Password" required />
+                                <label  className="block mb-2 text-sm font-medium text-gray-900">Confirmer votre mot de passe:</label>
+                                <input name="confirm" type="password" onChange={handleValueChange} value={editUser.confirm} className=" border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 " placeholder="Password"/>
                             </div>
                             <div>
-                                <label for="first_name" className="block mb-2 text-sm font-medium text-gray-900">Image:</label>   
-                                <input onChange={handleImageFile} type="file"   required />
+                                <p className="text-red-400 text-sm">Laissez les deux champs de mot de passe vide si vous ne voulez pas le modifier.</p>
                             </div>
+                              
                             
                             <br />
                             <div className="flex items-center gap-6 my-4">

@@ -124,6 +124,7 @@ class Login(Resource):
         
         current_user = get_jwt_identity()
         admin = Admin.query.filter_by(Username=current_user).first()
+
         if admin:
             return {
                 "msg": "Admin connecté",
@@ -148,6 +149,8 @@ class Login(Resource):
                 "access_token": access_token,
                 "refresh_token": refresh_token,
                 "Permission": admin.Permission,
+                "Image": b64encode(admin.Image).decode("utf-8"),
+                "Id": admin.id
             }, 200
 
         return {"msg": "Nom d'utilisateur ou mot de passe incorrect"}, 401

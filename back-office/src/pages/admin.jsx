@@ -2,105 +2,103 @@ import { useEffect, useState } from "react";
 import  {Axios} from  "../api/axios";
 import DataTable from "react-data-table-component";
 import ReactModal from 'react-modal';
-import { useAuthUser } from "react-auth-kit";
+import  User from '../assets/images/user.png';
+import { base64StringToBlob } from "blob-util";
 
-
-function Group(){
+function Admin(){
     const axios =  Axios()
-    const User = useAuthUser()
-    const [GroupData, setGroupData] = useState([])
+    const [userData, setUserData] = useState([])
     const [modIsOpen, setmodIsOpen] = useState(false)
-    const [FilteredData , setFilteredData] = useState([])
     const [addstate, setAddstate] = useState(false)
-    const [TextSearch, setTextSearch] = useState("")
+    const [ImageFile, setImageFile] = useState(null)
     const [error_msg, setError_msg] = useState("")
-    const [editGroup, seteditGroup] = useState({
-
-        "Id_admin": null,
-        "Name_group": "",
-        "Fonction": ""
+    const [editUser, seteditUser] = useState({
+        "Username":"",
+        "Password":"",
+        "Permission":"",
+        "new_password":"",
+        "confirm":"",
     })
-   
+    const LoadImage = (Image) => {
+          const converted_blob = base64StringToBlob(Image, "image/png");
+          const blobUrl = URL.createObjectURL(converted_blob);
+          return blobUrl  
+      };
 
-    const getGroup = async () => {
-        let response = await axios.get('groups')
+    const getUser = async () => {
+        let response = await axios.get('Admin/signUp')
         .then((response) => {
 
-            console.log("reponse:..."+response.data)
-            setGroupData(response.data)
+            console.log(response.data)
+            setUserData(response.data)
             
         })
         .catch((error) => {
             console.log(error)
         })
-        .finally(() => {      
-    })}
+        .finally(() => {
+           
+        })
+    }
     const OpenMod = (id) => {
         setmodIsOpen(true);
         setAddstate(false)
         console.log(id)
-        seteditGroup(GroupData.filter((data) => data.id === id)[0]);
+        seteditUser(userData.filter((data) => data.id === id)[0]);
        
     };
     const CloseMod = () => {
         setmodIsOpen(false);
-        seteditGroup(null);
+        seteditUser(null);
        
     };
     const handleAdd = () => {
         setmodIsOpen(true);
         setAddstate(true);
-        seteditGroup({
-            "Id_admin": null,
-            "Name_group": "",
-            "Fonction": ""
+        seteditUser({
+            "Username":"",
+            "Password":"",
+            "Permission":"",
+            "new_password":"",
+            "confirm":""
         })
-    }
-    const HandleSearch = () => { TextSearch === "" ? GroupData :
-        setFilteredData(GroupData.filter((item) => {
-            return (
-              item.Id_admin && item.Id_admin.toString().includes(TextSearch) || 
-              item.Name_group && item.Name_group.toLowerCase().includes(TextSearch.toLowerCase()) || 
-              item.Fonction && item.Fonction.toLowerCase().includes(TextSearch.toLowerCase()) 
-            )
-        }))
-    }
-    const HandleSearchInput = (e) => {
-        setTextSearch(e.target.value)
     }
     const handleValueChange = (e) => {
         const { name, value } = e.target;
-        seteditGroup((prev) => ({ ...prev, [name]: value })); 
-        console.log(editGroup)
+        seteditUser((prev) => ({ ...prev, [name]: value })); 
+        console.log(editUser)
     };
-
+    
+    const handleImageFile = (e) => {
+        setImageFile(e.target.files[0])
+    }
 
     const handleSave = (e) => {
         e.preventDefault();
         let formData = new FormData()
-        formData.append("Id_admin", User().Id)
-        formData.append("Name_group", editGroup.Name_group)
-        formData.append("Fonction", editGroup.Fonction)
- 
+        formData.append("Username", editUser.Username)
+        formData.append("Password", editUser.Password)
+        formData.append("Permission", editUser.Permission)
+        formData.append("Image", ImageFile)
         if(!addstate) {
           console.log(formData)
-          axios.put(`groups/${editGroup.id}`, formData)
+          axios.put(`Admin/signUp/${editUser.id}`, formData)
             .then(() => {
               alert('Modification effectuée');
               CloseMod();
-              getGroup()
+              getUser()
             })
             .catch((error) => {
               console.error("Error updating user", error);
             });
         }
-        if(addstate){
+        if(addstate && editUser.Password===editUser.confirm){
             console.log(formData)
-            axios.post(`groups/`, formData)
+            axios.post(`Admin/signUp`, formData)
             .then(() => {
               alert('Ajout effectuée');
               CloseMod();
-              getGroup()
+              getUser()
             })
             .catch((error) => {
               console.error("Error updating user", error);
@@ -115,10 +113,10 @@ function Group(){
             "Etes-vous vraiment sûr de vouloir supprimer?"
           );
         if(confirm){
-            axios.delete(`groups/${id}`)
+            axios.delete(`Admin/signUp/${id}`)
                 .then(() => {
                 alert('Item supprimé');
-                getGroup()
+                getUser()
                 })
                 .catch((error) => {
                 console.error("Erreur pendant la suppression", error);
@@ -128,34 +126,29 @@ function Group(){
         }
 
     useEffect(() => {   
-        getGroup()
+        getUser()
     },[])
-
-    useEffect(() => {  
-        if(TextSearch===""){
-            setFilteredData(GroupData)
-        }
-        else{
-            HandleSearch()
-        }
-    },[TextSearch, GroupData])
 
     const columns = [
         {
-            name: "ID du groupe",
+            name: "ID",
             selector: (row) => row.id,
         },
         {
-            name: "Id utilisateur",
-            selector: (row) => row.Id_admin,
+            name: "Images",
+            cell: (row) => (
+                <div className="w-16 h-16 rounded-full m-[0.2rem]">
+                    <img className="object-cover rounded-full" src={LoadImage(row.Image)} />
+                </div>
+              ),
         },
         {
-            name: "Nom du groupe",
-            selector: (row) => row.Name_group,
+            name: "Nom d'utilisateur",
+            selector: (row) => row.Username,
         },
         {
-            name: "Fonction",
-            selector: (row) => row.Fonction,
+            name: "Mot de passe",
+            selector: (row) => row.Password,
         },
        
         {
@@ -178,26 +171,14 @@ function Group(){
     return(<>
         <div>
             <div className="ml-4 my-4">
-                <button className=" flex items-center gap-2 w-auto p-2 bg-blue-600 text-white rounded-md" onClick={handleAdd}>Ajouter un groupe
+                <button className=" flex items-center gap-2 w-auto p-2 bg-blue-600 text-white rounded-md" onClick={handleAdd}>Ajouter un utilisateur
                     <svg xmlns="http://www.w3.org/2000/svg" width="1.5rem" height="1.5rem" viewBox="0 0 24 24"><path fill="white" d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10s10-4.477 10-10S17.523 2 12 2m5 11h-4v4h-2v-4H7v-2h4V7h2v4h4z"></path></svg>
                 </button>
             </div>
-            <div className="relative max-w-md mx-auto">   
-                <label htmlFor="default-search" className="mb-2 text-sm font-medium text-gray-900 sr-only">Chercher...</label>
-                <div className="relative">
-                    <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-                        <svg className="w-4 h-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
-                        </svg>
-                    </div>
-                    <input type="search" value={TextSearch} className="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-200 " placeholder="Recherche par nom..." onChange={HandleSearchInput}  required />
-                    <button type="button" className="text-white absolute end-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 " onClick={HandleSearch}>Chercher...</button>
-                </div>
-            </div>
             <DataTable 
             columns={columns} 
-            data={FilteredData} 
-            title="Groupes"
+            data={userData} 
+            title="Admin"
             striped
             pagination 
             />
@@ -205,23 +186,52 @@ function Group(){
             <ReactModal
                     isOpen={modIsOpen}
                     onRequestClose={CloseMod}
-                    contentLabel="Modifier un groupe"
+                    contentLabel="Modifier un utilisateur"
                     className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 h-auto w-[80%] md:w-[40%] bg-white rounde-lg border-2 p-2 shadow-md"
                     ariaHideApp={false}>
                     <h2 className="text-lg font-semibold mb-4"> {addstate ? 'Ajouter':'Modifier'} </h2>
-                    {editGroup && (
+                    {editUser && (
                     <div className="flex flex-col w-full justify-center items-center">
                         <form className="w-[80%]" onSubmit={handleSave}>
                             <div>
-                                <label className="block mb-2 text-sm font-medium text-gray-900">Nom du groupe:</label>
-                                <input name="Name_group" type="text" onChange={handleValueChange} value={editGroup.Name_group} className=" border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 " placeholder="Username" required />
+                                <label className="block mb-2 text-sm font-medium text-gray-900">Nom d'utilisateur:</label>
+                                <input name="Username" type="text" onChange={handleValueChange} value={editUser.Username} className=" border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 " placeholder="Username" required />
                             </div>
                             <br />
                             <div>
-                                <label className="block mb-2 text-sm font-medium text-gray-900">Fonction:</label>
-                                <textarea  name="Fonction"  onChange={handleValueChange} value={editGroup.Fonction} className=" border border-gray-300 h-48 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 " required />
+                                <label className="block mb-2 text-sm font-medium text-gray-900">Mot de passe:</label>
+                                <input  name="Password" type="password" onChange={handleValueChange} value={editUser.Password} className=" border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 " placeholder="Password" required />
                             </div>
-                          
+                            {addstate && 
+                               (<> <div>
+                                    <label  className="block mb-2 text-sm font-medium text-gray-900">Confirmer votre mot de passe:</label>
+                                    <input name="confirm" type="password" onChange={handleValueChange} value={editUser.confirm} className=" border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 " placeholder="Password" required />
+                                </div>
+                                <div>
+                                    <p className="text-red-400 text-sm">{error_msg}</p>
+                                </div>
+                                </>)
+                                
+                            }
+                            
+                            {!addstate && 
+                               ( <div>
+                                    <label  className="block mb-2 text-sm font-medium text-gray-900">Nouveau mot de passe:</label>
+                                    <input name="new_password" type="password" onChange={handleValueChange} value={editUser.new_password} className=" border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 " placeholder="Password"  />
+                                </div>
+                                 )
+                            }
+                            <div>
+                                <label  className="block mb-2 text-sm font-medium text-gray-900">Permission:</label>
+                                <select name="Permission" onChange={handleValueChange} defaultValue="admin" className=" border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 " required>
+                                    <option value="admin">Admin</option>
+                                    <option value="simple">Simple</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label  className="block mb-2 text-sm font-medium text-gray-900">Image:</label>   
+                                <input onChange={handleImageFile} type="file" aria-required={true}/>
+                            </div>
                             
                             <br />
                             <div className="flex items-center gap-6 my-4">
@@ -245,4 +255,4 @@ function Group(){
     
     }
     
-export default Group;
+export default Admin;

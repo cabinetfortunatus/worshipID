@@ -136,7 +136,7 @@ def process_frames(Id_event, app):
 
 def start_video_processing():
     global cap
-    cap.open("http://192.168.88.8:8080/video")  
+    cap.open("http://192.168.1.172:8080/video")  
     if not cap.isOpened():
         print("Erreur : Impossible d'ouvrir le flux vidéo.")
         return

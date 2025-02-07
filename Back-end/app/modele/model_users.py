@@ -6,7 +6,7 @@ class Users(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     id_admin = db.Column(db.Integer(), db.ForeignKey('admin.id'), nullable=True) 
     Username = db.Column(db.String(50), nullable=False)
-    Image = db.Column(db.LargeBinary(), nullable = False)
+    Image = db.Column(db.LargeBinary(), nullable = True)
     Password = db.Column(db.String(30), nullable=False)
     
     members = db.relationship('Members', back_populates='user', lazy = True)

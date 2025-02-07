@@ -31,7 +31,6 @@ Login_model = users_ns.model(
 @users_ns.route("/")
 class UsersList(Resource):
     @users_ns.marshal_with(user_model)
-    @jwt_required()  
     def get(self):
         all_users = Users.query.all()  
         for user in all_users:
@@ -45,21 +44,21 @@ class UsersList(Resource):
         data = request.form or request.get_json()
         Username = data.get('Username')
 
-        image_data = None
-        image = request.files.get("Image")
-        if image:
-            image_data = image.read()
+        # image_data = None
+        # image = request.files.get("Image")
+        # if image:
+        #     image_data = image.read()
             
-            print(f"Image reçue : {len(image_data)} octets")
+        #     print(f"Image reçue : {len(image_data)} octets")
             
-        if Users.query.filter_by(Username=Username).first():  
-            return {"message": f"Nom d'utilisateur '{Username}' est déjà pris."}, 409
+        # if Users.query.filter_by(Username=Username).first():  
+        #     return {"message": f"Nom d'utilisateur '{Username}' est déjà pris."}, 409
         
         
         new_user = Users(
             id_admin=data.get('id_admin'),
             Username=Username,
-            Image=image_data,
+            # Image=image_data,
             Password=generate_password_hash(data.get('Password'))
         )
         
@@ -97,7 +96,7 @@ class UserResource(Resource):
             db.session.rollback()
             return {"message": f"Une erreur est survenue : {str(e)}"}, 500
 
-    @jwt_required()  
+  
     def delete(self, id):
           
         user_to_delete = Users.query.get_or_404(id)
@@ -108,7 +107,7 @@ class UserResource(Resource):
 
 @users_ns.route('/update')
 class UpdateCredentials(Resource):
-    @jwt_required()
+
     def put(self):
         current_user_id = get_jwt_identity()
         user = Users.query.get_or_404(current_user_id)
@@ -150,8 +149,7 @@ class UserLogin(Resource):
           
             return {
                 "access_token": access_token,
-                "refresh_token": refresh_token,
-                "Permission": user.Permission,  
+                "refresh_token": refresh_token,  
             }, 200
 
       

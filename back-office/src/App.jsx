@@ -4,6 +4,7 @@ import Home from './pages/home'
 import Dashboard from './pages/dashboard'
 import Event from './pages/event'
 import Users from './pages/users'
+import Admin from './pages/admin'
 import Attendance from './pages/attendance'
 import Menu from './pages/menu'
 import Group from './pages/groups'
@@ -47,6 +48,10 @@ function App() {
         {
           path:'attendance',
           element:<Attendance />,
+        },
+        {
+          path:'admin',
+          element:<Admin />,
         },
         {
           path:'user',

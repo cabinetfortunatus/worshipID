@@ -2,12 +2,17 @@ import { useEffect, useState } from "react";
 import  {Axios} from  "../api/axios";
 import DataTable from "react-data-table-component";
 import ReactModal from 'react-modal';
-import  User from '../assets/images/user.png';
+import { useAuthUser } from "react-auth-kit";
+import { base64StringToBlob } from "blob-util";
 function Member(){
     const axios =  Axios()
+    const User = useAuthUser()
     const [memberData, setmemberData] = useState([])
+    const [AccountInfo, setAccountInfo] = useState([])
     const [FilteredData , setFilteredData] = useState([])
+    const [GroupList, setGroupList] = useState([])
     const [modIsOpen, setmodIsOpen] = useState(false)
+    const [AddToAGroup, setAddToAGroup] = useState(false)
     const [addstate, setAddstate] = useState(false)
     const [ImageFile, setImageFile] = useState(null)
     const [TextSearch, setTextSearch] = useState("")
@@ -19,7 +24,13 @@ function Member(){
         "Gender":"",
         "Phone":"",
         "Image":"",
+        "group_id":null
     })
+    const LoadImage = (Image) => {
+              const converted_blob = base64StringToBlob(Image, "image/png");
+              const blobUrl = URL.createObjectURL(converted_blob);
+              return blobUrl  
+          };
     const getMember = async () => {
         let response = await axios.get('members')
         .then((response) => {
@@ -35,6 +46,24 @@ function Member(){
         .finally(() => {
            
         })
+    }
+    const getGroup = async () => {
+        let response = await axios.get('groups')
+        .then((response) => {
+
+            console.log("reponse:..."+response.data)
+            setGroupList(response.data)
+            
+        })
+        .catch((error) => {
+            console.log(error)
+        })
+        .finally(() => {      
+        })
+
+    }
+    const Check  = () => {
+        setAddToAGroup(!AddToAGroup)
     }
     const OpenMod = (id) => {
         setmodIsOpen(true);
@@ -59,6 +88,7 @@ function Member(){
             "Gender":"",
             "Phone":"",
             "Image":"",
+            "group_id":null
         })
     }
     const handleValueChange = (e) => {
@@ -94,7 +124,10 @@ function Member(){
         formData.append("Adress", editMember.Adress)
         formData.append("Gender", editMember.Gender)
         formData.append("Phone", editMember.Phone)
-        formData.append("Image", ImageFile)
+        formData.append("group_id", editMember.group_id)
+        if(ImageFile != null)
+            formData.append("Image", ImageFile)
+        
         if(!addstate) {
           console.log(formData)
           console.log(editMember)
@@ -102,6 +135,7 @@ function Member(){
             .then(() => {
               alert('Modification effectuée');
               CloseMod();
+              getMember()
             })
             .catch((error) => {
               console.error("Error updating user", error);
@@ -113,6 +147,28 @@ function Member(){
             .then(() => {
               alert('Ajout effectuée');
               CloseMod();
+              getMember()
+            })
+            .catch((error) => {
+              console.error("Error updating user", error);
+            });
+        }
+    }
+    const CreateAccount =  (id_member) =>{
+        const confirm = window.confirm(
+            "Voulez-vous créer un compte pour ce profil?"
+          );
+        let AccountData = memberData.find((data) => data.id === id_member)
+        let formData = new FormData()
+       
+        formData.append("id_admin", User().Id)
+        formData.append("Username", AccountData.First_name+AccountData.Name)
+        formData.append("Password", "test001")
+
+        if(confirm){
+          axios.post(`users`, formData)
+            .then(() => {
+             
             })
             .catch((error) => {
               console.error("Error updating user", error);
@@ -138,6 +194,7 @@ function Member(){
 
     useEffect(() => {   
         getMember()
+        getGroup()
     },[])
 
     useEffect(() => {  
@@ -147,7 +204,7 @@ function Member(){
         else{
             HandleSearch()
         }
-    },[TextSearch])
+    },[TextSearch, memberData])
 
     const columns = [
         {
@@ -158,8 +215,8 @@ function Member(){
         {
             name: "Images",
             cell: (row) => (
-                <div className="w-16 h-16 rounded-full m-[0.2rem]">
-                    <img className="object-cover rounded-full" src={User} />
+                <div className="m-[0.2rem]">
+                    <img className="w-16 h-16 " src={LoadImage(row.Image)} />
                 </div>
               ),
             sortable: true,
@@ -194,6 +251,9 @@ function Member(){
             name: 'Actions',
             cell: (row) => (
               <div className="flex gap-2">
+                <button className="p-2 rounded-full " onClick={() => CreateAccount(row.id)}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="1.5rem" height="1.5rem"  viewBox="0 0 24 24"><path fill="green" d="M15 14c-2.67 0-8 1.33-8 4v2h16v-2c0-2.67-5.33-4-8-4m-9-4V7H4v3H1v2h3v3h2v-3h3v-2m6 2a4 4 0 0 0 4-4a4 4 0 0 0-4-4a4 4 0 0 0-4 4a4 4 0 0 0 4 4"></path></svg>
+                </button>
                 <button className="p-2 rounded-full " onClick={() => OpenMod(row.id)}>
                     <svg xmlns="http://www.w3.org/2000/svg" width="1.5rem" height="1rem" viewBox="0 0 24 24"><path fill="blue" d="m14.06 9.02l.92.92L5.92 19H5v-.92zM17.66 3c-.25 0-.51.1-.7.29l-1.83 1.83l3.75 3.75l1.83-1.83a.996.996 0 0 0 0-1.41l-2.34-2.34c-.2-.2-.45-.29-.71-.29m-3.6 3.19L3 17.25V21h3.75L17.81 9.94z"/></svg>
                 </button>
@@ -204,7 +264,7 @@ function Member(){
             ),        
         }
         
-    ];
+    ]; 
 
    
     return(<>
@@ -271,9 +331,24 @@ function Member(){
                                 <label htmlFor="Phone" className="block mb-2 text-sm font-medium text-gray-900">Numéro de téléphone:</label>
                                 <input name="Phone" id="Phone" type="number" onChange={handleValueChange} maxLength={10} value={editMember.Phone} className=" border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 " placeholder="Numéro de téléphone" required />
                             </div>
+                            <div className="flex gap-2 items-center my-4">
+                                <span>Ajouter à un groupe:</span>
+                                <button onClick={Check}><svg xmlns="http://www.w3.org/2000/svg" width="1.5rem" height="1.5rem" viewBox="0 0 20 20"><path fill="blue" d="M11 9V5H9v4H5v2h4v4h2v-4h4V9zm-1 11a10 10 0 1 1 0-20a10 10 0 0 1 0 20"></path></svg></button>
+                            </div>
+                            {AddToAGroup &&
+                                <div>
+                                        <label htmlFor="group_id" className="block mb-2 text-sm font-medium text-gray-900">Séléctionner un groupe:</label>
+                                        <select name="group_id" id="group_id" type="text" onChange={handleValueChange} className=" border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 " placeholder="Groupe" required >
+                                            <option sel>Séléctionner un groupe</option>
+                                            {GroupList.map((option) => 
+                                                <option value={option["id"]} >{option["Name_group"]}</option>
+                                            )}
+                                        </select>
+                                </div>
+                            } 
                             <div>
                                 <label htmlFor="first_name" className="block mb-2 text-sm font-medium text-gray-900">Image:</label>   
-                                <input onChange={handleImageFile} type="file"   required />
+                                <input onChange={handleImageFile} type="file"  />
                             </div>
                             
                             <br />
@@ -289,11 +364,7 @@ function Member(){
                     </div>
                     )}
             </ReactModal>
-        </div>
-
-
-
-        
+        </div>  
     </>)
     
     }

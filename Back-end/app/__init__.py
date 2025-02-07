@@ -3,17 +3,17 @@ from flask_restx import Api
 from app.configuration.config import DevConfig
 from app.configuration.exts import db
 from flask_cors import CORS
-# from flask_jwt_extended import JWTManager
+from flask_jwt_extended import JWTManager
 
 def create_app():
     app = Flask(__name__)
     app.config.from_object(DevConfig)
     db.init_app(app)
-    # CORS(app, resources={r"/*": {"origins": ["http://localhost:3000","http://localhost:3001"]}},
-    #     methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    #     allow_headers=["Content-Type", "Authorization"],
-    #     expose_headers=["Authorization"],
-    #     supports_credentials=True)
+    CORS(app, resources={r"/*": {"origins": ["http://localhost:5173"]}},
+        methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        allow_headers=["Content-Type", "Authorization"],
+        expose_headers=["Authorization"],
+        supports_credentials=True)
     api = Api(app, doc="/docs")
     
     

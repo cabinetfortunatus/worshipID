@@ -4,12 +4,17 @@ import { Authentication } from '../auth/auth';
 import { useAuthUser } from 'react-auth-kit';
 import videojs from 'video.js';
 import 'video.js/dist/video-js.css';
-
+import { base64StringToBlob } from "blob-util";
 function Home(){
     const User = useAuthUser()
     const { DoLogOut } = Authentication()
     const videoRef = useRef(null)
-
+    const LoadblobImage = (Image) => {
+              const converted_blob = base64StringToBlob(Image, "image/png");
+              const blobUrl = URL.createObjectURL(converted_blob);
+              return blobUrl  
+          };
+    
     const Logout = () => {
         DoLogOut()
     }
@@ -39,8 +44,8 @@ return(<>
                     <svg className="z-10" xmlns="http://www.w3.org/2000/svg" width="2rem" height="2rem" viewBox="0 0 512 512"><path fill="white" d="M186.2 139.6h139.6V0H186.2zM372.4 0v139.6H512V0zM0 139.6h139.6V0H0zm186.2 186.2h139.6V186.2H186.2zm186.2 0H512V186.2H372.4zM0 325.8h139.6V186.2H0zM186.2 512h139.6V372.4H186.2zm186.2 0H512V372.4H372.4zM0 512h139.6V372.4H0z"/></svg>
                 </NavLink>
                 <div className="text-white font-semibold">{User().username}</div>
-                <div className="w-10 h-10 rounded-full bg-white ">
-
+                <div className="flex items-center justify-center w-12 h-12 rounded-full bg-white border-[1px] border-gray-500">
+                    <img className="w-10 h-10  rounded-full bg-white " src={LoadblobImage(User().Image)} />
                 </div>
                 <button onClick={Logout} className="flex h-10 items-center text-sm font-semibold text-white bg-[#121330] p-2 rounded-lg shadow-md">
                     <svg xmlns="http://www.w3.org/2000/svg" width="2rem" height="2rem" viewBox="0 0 24 24"><path fill="white" d="M5 21q-.825 0-1.412-.587T3 19V5q0-.825.588-1.412T5 3h7v2H5v14h7v2zm11-4l-1.375-1.45l2.55-2.55H9v-2h8.175l-2.55-2.55L16 7l5 5z"/></svg>
