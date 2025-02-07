@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, current_app, send_file
+from flask import Blueprint, jsonify, current_app, Response
 import numpy as np
 import cv2
 import face_recognition
@@ -9,12 +9,12 @@ import torch
 import os
 from app.configuration.exts import db  
 from app.modele.model_members import Members
-from sqlalchemy.exc import SQLAlchemyError
-import time
 from app.modele.model_events import Event
 from app.modele.model_presence import Presence
 from app.modele.model_absence import Absence
 from app.modele.model_groups import Groups
+from sqlalchemy.exc import SQLAlchemyError
+import time
 import base64
 
 recognition_bp = Blueprint('recognition', __name__)
@@ -28,7 +28,6 @@ try:
     model = YOLO(model_path)
     model.to(device)
     model.overrides['verbose'] = False
-
 except Exception as e:
     print(f"[ERROR] Échec du chargement du modèle YOLO : {e}")
 
@@ -43,7 +42,29 @@ frame_queue = queue.Queue(maxsize=2)
 processed_frame = None
 processing_lock = threading.Lock()
 
+def generate_video_stream():
+    """Génère un flux vidéo en continu avec les frames traitées."""
+    global processed_frame
+    while True:
+        with processing_lock:
+            if processed_frame is not None:
+                try:
+                    # Encodage de la frame en JPEG
+                    ret, buffer = cv2.imencode('.jpg', processed_frame)
+                    if not ret:
+                        continue
+                    frame = buffer.tobytes()
+                    # Envoi de la frame dans le flux
+                    yield (b'--frame\r\n'
+                           b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+                except Exception as e:
+                    print(f"Erreur lors de l'encodage de la frame : {e}")
+                    continue
+            else:
+                time.sleep(0.1)  # Attendre si aucune frame n'est disponible
+
 def load_members_from_db():
+    """Charge les membres depuis la base de données et prépare leurs encodages faciaux."""
     with current_app.app_context():
         members = Members.query.all()
         print(f"{len(members)} membres trouvés dans la base de données.")
@@ -74,6 +95,7 @@ def load_members_from_db():
                 print(f"Aucune image disponible pour {member.Name} {member.First_name}")
 
 def process_frames(Id_event, app):
+    """Traite les frames vidéo pour la reconnaissance faciale."""
     global processed_frame
     with app.app_context():
         while True:
@@ -135,8 +157,9 @@ def process_frames(Id_event, app):
                     processed_frame = frame
 
 def start_video_processing():
+    """Démarre la capture et le traitement de la vidéo."""
     global cap
-    cap.open("http://192.168.88.8:8080/video")  
+    cap.open("http://192.168.1.171:8080/video")  
     if not cap.isOpened():
         print("Erreur : Impossible d'ouvrir le flux vidéo.")
         return
@@ -161,11 +184,13 @@ def start_video_processing():
     cv2.destroyAllWindows()
 
 def wait_for_frame():
+    """Attend qu'une frame soit disponible dans la file d'attente."""
     while frame_queue.empty():
         time.sleep(0.1)
 
 @recognition_bp.route('/start_event/<int:id_event>', methods=['POST'])
 def start_event(id_event):
+    """Démarre la reconnaissance faciale pour un événement spécifique."""
     global active_events
 
     with current_app.app_context():
@@ -205,10 +230,11 @@ def start_event(id_event):
             "message": f"Événement '{event.Name_event}' démarré, reconnaissance faciale activée.",
             "presences": members_info
         }), 200
-        
+
 @recognition_bp.route('/stop_event/<int:id_event>', methods=['POST'])
 def stop_event(id_event):
-    global active_events, stopped_events, stop_capture
+    """Arrête la reconnaissance faciale pour un événement spécifique."""
+    global stopped_events, stop_capture
 
     with current_app.app_context():
         event = Event.query.get(id_event)
@@ -217,10 +243,8 @@ def stop_event(id_event):
         
         if id_event in stopped_events and stopped_events[id_event]['stopped']:
             return jsonify({"message": "L'événement est déjà stoppé."}), 400
-        
-        stop_capture[id_event] = True
-        
-        known_members = []
+
+        absences_info = []
         if event.target_type == "all_members":
             known_members = Members.query.filter(
                 (Members.Name + ' ' + Members.First_name).in_(known_names)
@@ -231,6 +255,7 @@ def stop_event(id_event):
                 return jsonify({"message": "Le groupe spécifié n'existe pas."}), 404
             group_member_names = {f"{member.Name.strip()} {member.First_name.strip()}" for member in group.members}
             known_members = Members.query.filter(
+                (Members.Name + ' ' + Members.First_name).in_(known_names) &
                 (Members.Name + ' ' + Members.First_name).in_(group_member_names)
             ).all()
         else:
@@ -239,7 +264,6 @@ def stop_event(id_event):
         presence_members_ids = {p.Id_member for p in Presence.query.filter_by(Id_event=event.id).all()}
         absence_members_ids = {a.Id_member for a in Absence.query.filter_by(Id_event=event.id).all()}
 
-        absences_info = []
         for member in known_members:
             if member.id not in presence_members_ids and member.id not in absence_members_ids:
                 absence = Absence(Id_event=event.id, Id_member=member.id)
@@ -253,14 +277,14 @@ def stop_event(id_event):
                     "Phone": str(member.Phone),
                     "Image": base64.b64encode(member.Image).decode('utf-8') if member.Image else None
                 })
-        
+
         try:
             db.session.commit()
             stopped_events[id_event] = {"stopped": True}
-            if id_event in active_events:
-                del active_events[id_event]
+            stop_capture[id_event] = True  
             cap.release()
             cv2.destroyAllWindows()
+            
         except SQLAlchemyError as e:
             print(f"Erreur lors du commit des absences : {e}")
             db.session.rollback()
@@ -268,8 +292,13 @@ def stop_event(id_event):
 
         return jsonify({"listes des absents": absences_info}), 200
 
-def member_is_in_group(name, group):
+@recognition_bp.route('/video_stream')
+def video_stream():
+    
+    return Response(generate_video_stream(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
+def member_is_in_group(name, group):
+ 
     name = name.strip()
     group_members = {f"{member.Name.strip()} {member.First_name.strip()}" for member in group.members}
     return name in group_members
