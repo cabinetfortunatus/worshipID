@@ -116,35 +116,44 @@ class UpdateCredentials(Resource):
         except Exception as e:
             db.session.rollback()
             return make_response(jsonify({"message": f"Une erreur est survenue : {str(e)}"}), 500)
-
 @users_ns.route('/Login')
 class UserLogin(Resource):
     @users_ns.expect(user_model)
     def post(self):
+        from base64 import b64encode  
+        
         data = request.form or request.get_json()
         Username = data.get('Username')
-        Password = data.get('Password') 
+        Password = data.get('Password')
 
 
         if not Username or not Password:
             return make_response(jsonify({"error": "Le nom d'utilisateur et le mot de passe sont obligatoires."}), 400)
 
         try:
+
             user = Users.query.filter_by(Username=Username).first()
-            members = db.session.query(Users).join(Members, Users.id_member == Members.id).filter(Users.id == id).all()
-            print(f"ito {members}")
-            if user:     
-                if check_password_hash(user.Password, Password):  
+            print(f"Utilisateur trouvé : {user}")  
+
+            if user:
+                if check_password_hash(user.Password, Password):
                     access_token = create_access_token(identity=user.id)
                     refresh_token = create_refresh_token(identity=user.id)
+                    
+                    member = Members.query.filter_by(id=user.id_member).first()
+                    
+                    image_base64 = b64encode(member.Image).decode('utf-8') if member and member.Image else None
+
                     return make_response(jsonify({
                         "message": "Connexion réussie",
+                        "id_member": user.id_member,  
                         "access_token": access_token,
                         "refresh_token": refresh_token,
-                        "Image": b64encode(members.Image).decode("utf-8"),
-                        "Id": members.id
+                        "Image": image_base64,
                     }), 200)
+
                 else:
+                    print("Mot de passe incorrect") 
                     return make_response(jsonify({"error": "Mot de passe incorrect"}), 401)
             else:
             

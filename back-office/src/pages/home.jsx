@@ -18,21 +18,21 @@ function Home(){
     const Logout = () => {
         DoLogOut()
     }
-    // useEffect(()=> {
-    //     const player = videojs(videoRef.current, {
-    //         controls: true,
-    //         autoplay: true,
-    //         preload: 'auto',
-    //         sources: [{
-    //           src: 'rtsp://192.168.1.172:8080/h264_ulaw.sdp',  
-    //           type: 'application/x-mpegURL'
-    //         }]
-    //       });
+    useEffect(()=> {
+        const player = videojs(videoRef.current, {
+            controls: true,
+            autoplay: true,
+            preload: 'auto',
+            sources: [{
+              src: 'rtsp://192.168.1.172:8080/h264_ulaw.sdp',  
+              type: 'application/x-mpegURL'
+            }]
+          });
       
-    //       return () => {
-    //         player.dispose();
-    //       };
-    // })
+          return () => {
+            player.dispose();
+          };
+    })
 
 return(<>
 
@@ -55,7 +55,7 @@ return(<>
         </div>
         <div className="grid grid-cols-4 gap-2 my-2 mx-2 bg-white">
            <div className="w-full h-full border-2 flex items-center justify-center shadow-sm bg-white">
-                {/* <video ref={videoRef} className="w-full h-full video-js vjs-default-skin" /> */}
+                <video ref={videoRef} className="w-full h-full video-js vjs-default-skin" />
                 <img className="w-full h-full"
                     src="http://192.168.1.172:8080/video"  
                     alt="Camera Stream"

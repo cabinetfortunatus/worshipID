@@ -7,8 +7,10 @@ import ReactModal from 'react-modal';
 function Users(){
     const axios =  Axios()
     const [userData, setUserData] = useState([])
+    const [FilteredData, setFilteredData] = useState([])
     const [modIsOpen, setmodIsOpen] = useState(false)
     const [error_msg, setError_msg] = useState("")
+    const [TextSearch, setTextSearch] = useState("")
     const [editUser, seteditUser] = useState({
         "Username":"",
         "Password":"",
@@ -30,6 +32,20 @@ function Users(){
         .finally(() => {
            
         })
+    }
+    const HandleSearch = () => { TextSearch === "" ? userData :
+        console.log(userData)
+        setFilteredData(userData.filter((item) => {
+            return (
+              item.id && item.id.toString().includes(TextSearch.toLowerCase()) ||
+              item.Username && item.Username.toLowerCase().includes(TextSearch.toLowerCase()) ||
+              item.id_member && item.id_member.toString().includes(TextSearch.toLowerCase())
+            
+            )
+        }))
+    }
+    const HandleSearchInput = (e) => {
+        setTextSearch(e.target.value)
     }
     const OpenMod = (id) => {
         setmodIsOpen(true);
@@ -93,11 +109,23 @@ function Users(){
     useEffect(() => {   
         getUser()
     },[])
+    useEffect(() => {  
+        if(TextSearch===""){
+            setFilteredData(userData)
+        }
+        else{
+            HandleSearch()
+        }
+    },[TextSearch, userData])
 
     const columns = [
         {
             name: "ID",
             selector: (row) => row.id,
+        },
+        {
+            name: "ID Membre",
+            selector: (row) => row.id_member,
         },
         {
             name: "Nom d'utilisateur",
@@ -127,9 +155,22 @@ function Users(){
    
     return(<>
         <div>
+
+             <div className="relative max-w-md mx-auto">   
+                <label htmlFor="default-search" className="mb-2 text-sm font-medium text-gray-900 sr-only">Chercher...</label>
+                <div className="relative">
+                    <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                        <svg className="w-4 h-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                        </svg>
+                    </div>
+                    <input type="search" value={TextSearch} className="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-200 " placeholder="Recherche par nom..." onChange={HandleSearchInput}  required />
+                    <button type="button" className="text-white absolute end-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 " onClick={HandleSearch}>Chercher...</button>
+                </div>
+            </div>
             <DataTable 
             columns={columns} 
-            data={userData} 
+            data={FilteredData} 
             title="Utilisateurs"
             striped
             pagination 

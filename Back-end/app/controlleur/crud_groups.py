@@ -75,7 +75,6 @@ class GroupMembers(Resource):
         result = [
             {
                 "id": member.id,
-                "Id_users": member.Id_users,
                 "Name": member.Name,
                 "First_name": member.First_name,
                 "Adress": member.Adress,
