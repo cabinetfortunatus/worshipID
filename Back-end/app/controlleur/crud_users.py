@@ -15,16 +15,8 @@ user_model = users_ns.model(
         "id_admin": fields.Integer(description="ID de l'admin associé (facultatif)"),
         "id_member": fields.Integer(description="ID de l'admin associé (facultatif)"),
         "Username": fields.String(required=True, description="Nom d'utilisateur"),
-        "Password": fields.String(required=True, description="Mot de passe"),
+        "Password": fields.Raw(required=True, description="Mot de passe"),
     },
-)
-
-Login_model = users_ns.model(
-    "Login",
-    {
-        "Username": fields.String(required=True, description="Nom d'utilisateur"),
-        "Password": fields.String(required=True, description="Mot de passe"),
-    }
 )
 
 
@@ -43,7 +35,7 @@ class UsersList(Resource):
     def post(self):
         data = request.form or request.get_json()
         Username = data.get('Username')
-
+        Password = data.get('Password')
         if Users.query.filter_by(Username=Username).first():
             return make_response(jsonify({"message": f"L'utilisateur {Username} existe déjà"}), 400)
 
@@ -51,7 +43,7 @@ class UsersList(Resource):
         id_admin=data.get('id_admin'),
         id_member=data.get('id_member'),
         Username=Username,
-        Password=generate_password_hash(data.get('Password'))
+        Password=generate_password_hash(Password)
     )
 
         try:
@@ -127,24 +119,22 @@ class UpdateCredentials(Resource):
 
 @users_ns.route('/Login')
 class UserLogin(Resource):
-    @users_ns.expect(Login_model)
+    @users_ns.expect(user_model)
     def post(self):
-        data = request.get_json()
+        data = request.form or request.get_json()
         Username = data.get('Username')
-        Password = data.get('Password')
+        Password = data.get('Password')  # Do not hash the password here
 
-        print(f"Tentative de connexion : {Username}")  # Debug
+        print(f"Tentative de connexion : {Username}") 
 
         if not Username or not Password:
             return make_response(jsonify({"error": "Le nom d'utilisateur et le mot de passe sont obligatoires."}), 400)
 
         try:
             user = Users.query.filter_by(Username=Username).first()
-            print(f"Utilisateur trouvé : {user}")  # Debug
-
-            if user:
-                print(f"Mot de passe stocké : {user.Password}")  # Debug
-                if check_password_hash(user.Password, Password):
+            print(f"Utilisateur trouvé : {user}")  
+            if user:     
+                if check_password_hash(user.Password, Password):  
                     access_token = create_access_token(identity=user.id)
                     refresh_token = create_refresh_token(identity=user.id)
                     return make_response(jsonify({
@@ -153,10 +143,11 @@ class UserLogin(Resource):
                         "refresh_token": refresh_token
                     }), 200)
                 else:
-                    print("Mot de passe incorrect")  # Debug
+                    print("Mot de passe incorrect") 
+                    print(f"Mot de passe Entré : {Password}") 
                     return make_response(jsonify({"error": "Mot de passe incorrect"}), 401)
             else:
-                print("Nom d'utilisateur non trouvé")  # Debug
+                print("Nom d'utilisateur non trouvé") 
                 return make_response(jsonify({"error": "Nom d'utilisateur non trouvé"}), 401)
 
         except Exception as e:

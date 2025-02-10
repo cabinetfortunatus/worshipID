@@ -8,11 +8,8 @@ class Users(db.Model):
     id_admin = db.Column(db.Integer(), db.ForeignKey('admin.id'), nullable=True)
     id_member = db.Column(db.Integer(), db.ForeignKey('members.id'), unique=True)
     Username = db.Column(db.String(50), nullable=False)
-    Password = db.Column(db.String(30), nullable=False)
+    Password = db.Column(db.Text(), nullable=False)
     
-    
-    
-    # Relation avec Admin
     admin = db.relationship('Admin', 
                           back_populates='user',
                           foreign_keys=[id_admin])

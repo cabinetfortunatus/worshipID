@@ -294,11 +294,11 @@ def stop_event(id_event):
 
 @recognition_bp.route('/video_stream')
 def video_stream():
-    
+    """Retourne un flux vidéo en continu."""
     return Response(generate_video_stream(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 def member_is_in_group(name, group):
- 
+    """Vérifie si un membre appartient à un groupe."""
     name = name.strip()
     group_members = {f"{member.Name.strip()} {member.First_name.strip()}" for member in group.members}
     return name in group_members
