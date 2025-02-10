@@ -9,6 +9,7 @@ from app.modele.model_absence import Absence
 from app.controlleur.crud_members import members_ns
 from app.controlleur.crud_presence import presence_ns
 from app.controlleur.crud_absence import absence_ns
+from base64 import b64encode
 
 member_model = members_ns.models['Member']
 presence_model = presence_ns.models['Presence']
@@ -140,6 +141,9 @@ class EventMembersPresent(Resource):
     def get(self, id):
         event = Event.query.get_or_404(id)
         members = db.session.query(Members).join(Presence, Presence.Id_member == Members.id).filter(Presence.Id_event == id).all()
+        for member in members:
+            if member.Image:
+                member.Image = b64encode(member.Image).decode('utf-8')
         return members
     
 @event_ns.route("/<int:id>/MembersAbsent")
@@ -148,4 +152,7 @@ class EventMembersAbsent(Resource):
     def get(self, id):
         event = Event.query.get_or_404(id)
         members = db.session.query(Members).join(Absence, Absence.Id_member == Members.id).filter(Absence.Id_event == id).all()
+        for member in members:
+            if member.Image:
+                member.Image = b64encode(member.Image).decode('utf-8')
         return members
