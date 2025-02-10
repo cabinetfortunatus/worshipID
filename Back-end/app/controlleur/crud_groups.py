@@ -1,8 +1,10 @@
-from flask import request
+from flask import request, jsonify
 from flask_restx import Namespace, Resource, fields
 from app.modele.model_groups import Groups  
+from app.configuration.exts import db
 from app.modele.model_members import Members  
 import base64
+from flask import make_response
 
 groups_ns = Namespace('groups', description="Gestion des groupes")
 
@@ -72,7 +74,6 @@ class GroupMembers(Resource):
         result = [
             {
                 "id": member.id,
-                "Id_users": member.Id_users,
                 "Name": member.Name,
                 "First_name": member.First_name,
                 "Adress": member.Adress,
@@ -84,3 +85,22 @@ class GroupMembers(Resource):
         ]
 
         return {"members": result}, 200
+    
+
+@groups_ns.route('/<int:group_id>/members/<int:member_id>')
+class RemoveGroupMember(Resource):
+    def delete(self, group_id, member_id):
+        group = Groups.query.get_or_404(group_id)
+        member = Members.query.get_or_404(member_id)
+
+        if member not in group.members:
+            return make_response(jsonify({"error": "Ce membre ne fait pas partie de ce groupe."}), 400)
+
+        try:
+            group.members.remove(member)
+            db.session.commit()
+            return make_response(jsonify({"message": "Membre supprimé du groupe avec succès"}), 200)
+        except Exception as e:
+    
+            db.session.rollback()
+            return make_response(jsonify({"error": f"Une erreur est survenue : {str(e)}"}), 500)

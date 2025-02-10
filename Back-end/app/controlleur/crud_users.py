@@ -120,9 +120,7 @@ class UpdateCredentials(Resource):
 @users_ns.route('/Login')
 class UserLogin(Resource):
     @users_ns.expect(user_model)
-    def post(self):
-        from base64 import b64encode  
-        
+    def post(self):      
         data = request.form or request.get_json()
         Username = data.get('Username')
         Password = data.get('Password')
