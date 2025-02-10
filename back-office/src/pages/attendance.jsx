@@ -209,50 +209,68 @@ function Attendance(){
                     className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 h-auto w-[80%] md:w-[40%] bg-white rounde-lg border-2 p-2 shadow-md"
                     ariaHideApp={false}>
                     <h2 className="text-lg font-semibold mb-4">{PresenceState ? "Liste des membres présents:":"Liste des membres absents"}</h2>
-                        <table className="table-auto w-full ">
-                            <thead>
-                                <tr>
-                                <th className="border-2">Image</th>
-                                <th className="border-2">Nom</th>
-                                <th className="border-2">Prénoms</th>
-                                <th className="border-2">Adresse</th>
-                                <th className="border-2">Numéro</th>
-                                </tr>
-                            </thead>
-                            <tbody className="text-sm">
-                                {PresenceState && Prensent.map((data) => 
-                                <>
-                                    <tr className="shadow-md my-2 py-4">
-                                            <td> 
-                                                <div className="m-[0.2rem]">
-                                                    <img className="w-16 h-16 " src={LoadImage(data.Image)} />
-                                                </div>
-                                            </td>
-                                            <td>{data.Name}</td>
-                                            <td>{data.First_name}</td>
-                                            <td>{data.Adress}</td>
-                                            <td>{data.Phone}</td>
+                        {PresenceState &&
+                            <table className="table-auto w-full ">
+                                <thead>
+                                    <tr>
+                                    <th className="border-2">Image</th>
+                                    <th className="border-2">Nom</th>
+                                    <th className="border-2">Prénoms</th>
+                                    <th className="border-2">Adresse</th>
+                                    <th className="border-2">Numéro</th>
                                     </tr>
-                                </>
-                                
-                                )}
-                            </tbody>
-                        </table>
-                            {!PresenceState && Absent.map((data) => 
-                             <>
-                                <tr className="border-t-2 border-b-2 my-2 py-4">
-                                        <td> 
-                                            <div className="m-[0.2rem]">
-                                                <img className="w-16 h-16 " src={LoadImage(data.Image)} />
-                                            </div>
-                                        </td>
-                                        <td>{data.Name}</td>
-                                        <td>{data.First_name}</td>
-                                        <td>{data.Adress}</td>
-                                        <td>{data.Phone}</td>
-                                </tr>
-                             </>
-                            )}
+                                </thead>
+                                <tbody className="text-sm">
+                                    { Prensent.map((data) => 
+                                    <>
+                                        <tr key={data.id} className="shadow-md my-2 py-4">
+                                                <td> 
+                                                    <div className="m-[0.2rem]">
+                                                        <img className="w-16 h-16 " src={LoadImage(data.Image)} />
+                                                    </div>
+                                                </td>
+                                                <td>{data.Name}</td>
+                                                <td>{data.First_name}</td>
+                                                <td>{data.Adress}</td>
+                                                <td>{data.Phone}</td>
+                                        </tr>
+                                    </>
+                                    
+                                    )}
+                                </tbody>
+                            </table>
+                            }
+                            {!PresenceState &&
+                            <table className="table-auto w-full ">
+                                <thead>
+                                    <tr>
+                                    <th className="border-2">Image</th>
+                                    <th className="border-2">Nom</th>
+                                    <th className="border-2">Prénoms</th>
+                                    <th className="border-2">Adresse</th>
+                                    <th className="border-2">Numéro</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="text-sm">
+                                    { Absent.map((data) => 
+                                    <>
+                                        <tr key={data.id} className="shadow-md my-2 py-4">
+                                                <td> 
+                                                    <div className="m-[0.2rem]">
+                                                        <img className="w-16 h-16 " src={LoadImage(data.Image)} />
+                                                    </div>
+                                                </td>
+                                                <td>{data.Name}</td>
+                                                <td>{data.First_name}</td>
+                                                <td>{data.Adress}</td>
+                                                <td>{data.Phone}</td>
+                                        </tr>
+                                    </>
+                                    
+                                    )}
+                                </tbody>
+                            </table>
+                            }
                             <br />
                             <div className="flex items-center gap-6 my-4">
                                 <button className="bg-orange-400 p-2 rounded-md" type="button" onClick={CloseMod}>

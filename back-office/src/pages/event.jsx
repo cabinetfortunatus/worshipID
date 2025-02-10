@@ -444,29 +444,33 @@ function Event(){
                 contentLabel="Participants"
                 className="absolute overflow-y-auto top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 h-auto w-[80%] md:w-[40%] bg-white rounde-lg border-2 p-2 shadow-md"
                 ariaHideApp={false}>
-                    {Participants.map((data) => 
-                        <>
-                            <div className="my-2 text-gray-700 text-sm shadow-sm">
-                                <div className="flex h-16 items-center gap-2 m-[0.2rem]">
-                                    <img className="w-16 h-16 " src={LoadImage(data.Image)} />
-                                    <div className="flex px-2  h-full gap-2 items-center">
-                                        <label className="font-semibold">Id:</label>
-                                        <span>{data.id}</span>
-                                    </div>
-                                    <div className="flex px-2 h-full gap-2 items-center">
-                                        <label className="font-semibold">Nom:</label>
-                                        <span>{data.Name}</span>
-                                    </div>
-                                    <div className="flex px-2 w-20 h-full gap-2 items-center">
-                                        <label className="font-semibold">Prénoms:</label>
-                                        <span>{data.First_name}</span>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                        </>
-                    )}
-                
+                    <table className="table-auto w-full ">
+                            <thead>
+                                <tr>
+                                <th className="border-2">Image</th>
+                                <th className="border-2">Nom</th>
+                                <th className="border-2">Prénoms</th>
+                                <th className="border-2">Adresse</th>
+                                <th className="border-2">Numéro</th>
+                                </tr>
+                            </thead>
+                            <tbody className="text-sm">
+                                {Participants.map((data) => 
+                                    <tr key={data.id} className="shadow-md my-2 py-4">
+                                        <td> 
+                                            <div className="m-[0.2rem]">
+                                                <img className="w-16 h-16 " src={LoadImage(data.Image)} />
+                                            </div>
+                                        </td>
+                                        <td>{data.Name}</td>
+                                        <td>{data.First_name}</td>
+                                        <td>{data.Adress}</td>
+                                        <td>{data.Phone}</td>
+                                    </tr>
+                                )}
+                                
+                            </tbody>
+                    </table>
             </ReactModal>
         </div>
 

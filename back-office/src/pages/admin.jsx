@@ -147,6 +147,10 @@ function Admin(){
             selector: (row) => row.Username,
         },
         {
+            name: "Privilège",
+            selector: (row) => row.Permission,
+        },
+        {
             name: "Mot de passe",
             selector: (row) => row.Password,
         },

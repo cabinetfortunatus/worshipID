@@ -10,6 +10,7 @@ function Group(){
     const User = useAuthUser()
     const [GroupData, setGroupData] = useState([])
     const [GroupMembers, setGroupMembers] = useState([])
+    const [GroupId, setGroupId] = useState([])
     const [modIsOpen, setmodIsOpen] = useState(false)
     const [SecondmodIsOpen, setSecondmodIsOpen] = useState(false)
     const [FilteredData , setFilteredData] = useState([])
@@ -48,6 +49,7 @@ function Group(){
         .then((response) => {
 
             console.log("reponse groupe membres:..."+response.data)
+            setGroupId(id_group)
             setGroupMembers(response.data)
             
         })
@@ -57,6 +59,24 @@ function Group(){
         .finally(() => { 
             SecondModOpen()     
     })}
+
+    const RemoveFromGroup = async (id_member, id_group) => {
+        const confirm = window.confirm(
+            "Etes-vous vraiment sûr de vouloir retirer cette personne du groupe ?"
+          );
+        if(confirm){
+        let response = await axios.delete(`groups/${id_group}/members/${id_member}`)
+        .then((response) => {
+                console.log(response.data)
+                getGroupMembers(id_group)
+        })
+        .catch((error) => {
+            console.log(error)
+        })
+        .finally(() => {     
+        }  
+    )}
+    }
 
     const OpenMod = (id) => {
         setmodIsOpen(true);
@@ -285,11 +305,12 @@ function Group(){
                                 <th className="border-2">Prénoms</th>
                                 <th className="border-2">Adresse</th>
                                 <th className="border-2">Numéro</th>
+                                <th className="border-2">Retirer</th>
                                 </tr>
                             </thead>
                             <tbody className="text-sm">
                                 {GroupMembers.map((data) => 
-                                    <tr className="shadow-md my-2 py-4">
+                                    <tr key={data.id} className="shadow-md my-2 py-4">
                                         <td> 
                                             <div className="m-[0.2rem]">
                                                 <img className="w-16 h-16 " src={LoadImage(data.Image)} />
@@ -299,6 +320,11 @@ function Group(){
                                         <td>{data.First_name}</td>
                                         <td>{data.Adress}</td>
                                         <td>{data.Phone}</td>
+                                        <td>
+                                            <button onClick={() => RemoveFromGroup(data.id, GroupId)}>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="1.5rem" height="1.5rem" viewBox="0 0 1024 1024"><path fill="red" d="M512 64a448 448 0 1 1 0 896a448 448 0 0 1 0-896M288 512a38.4 38.4 0 0 0 38.4 38.4h371.2a38.4 38.4 0 0 0 0-76.8H326.4A38.4 38.4 0 0 0 288 512"></path></svg>
+                                            </button>
+                                        </td>
                                     </tr>
                                 )}
                                 
