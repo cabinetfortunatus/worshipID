@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import  {Axios} from  "../api/axios";
 import DataTable from "react-data-table-component";
 import ReactModal from 'react-modal';
+import { base64StringToBlob } from "blob-util";
 
 function Attendance(){
     const axios =  Axios()
@@ -14,7 +15,12 @@ function Attendance(){
     const [TextSearch, setTextSearch] = useState("")
   
 
-    
+    const LoadImage = (Image) => {
+        const converted_blob = base64StringToBlob(Image, "image/png");
+        const blobUrl = URL.createObjectURL(converted_blob);
+        return blobUrl  
+    };
+
     const getEvent = async () => {
         let response = await axios.get('event')
         .then((response) => {
@@ -205,13 +211,33 @@ function Attendance(){
                     <h2 className="text-lg font-semibold mb-4">{PresenceState ? "Liste des membres présents:":"Liste des membres absents"}</h2>
                             {PresenceState && Prensent.map((data) => 
                              <>
-                                <div>{data.Name}dede</div>
+                                <tr className="border-t-2 border-b-2 my-2 py-4">
+                                        <td> 
+                                            <div className="m-[0.2rem]">
+                                                <img className="w-16 h-16 " src={LoadImage(data.Image)} />
+                                            </div>
+                                        </td>
+                                        <td>{data.Name}</td>
+                                        <td>{data.First_name}</td>
+                                        <td>{data.Adress}</td>
+                                        <td>{data.Phone}</td>
+                                </tr>
                              </>
                             )}
 
                             {!PresenceState && Absent.map((data) => 
                              <>
-                                <div>{data.Name}dede</div>
+                                <tr className="border-t-2 border-b-2 my-2 py-4">
+                                        <td> 
+                                            <div className="m-[0.2rem]">
+                                                <img className="w-16 h-16 " src={LoadImage(data.Image)} />
+                                            </div>
+                                        </td>
+                                        <td>{data.Name}</td>
+                                        <td>{data.First_name}</td>
+                                        <td>{data.Adress}</td>
+                                        <td>{data.Phone}</td>
+                                </tr>
                              </>
                             )}
                             <br />

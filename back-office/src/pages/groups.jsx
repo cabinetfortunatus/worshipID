@@ -3,13 +3,15 @@ import  {Axios} from  "../api/axios";
 import DataTable from "react-data-table-component";
 import ReactModal from 'react-modal';
 import { useAuthUser } from "react-auth-kit";
-
+import { base64StringToBlob } from "blob-util";
 
 function Group(){
     const axios =  Axios()
     const User = useAuthUser()
     const [GroupData, setGroupData] = useState([])
+    const [GroupMembers, setGroupMembers] = useState([])
     const [modIsOpen, setmodIsOpen] = useState(false)
+    const [SecondmodIsOpen, setSecondmodIsOpen] = useState(false)
     const [FilteredData , setFilteredData] = useState([])
     const [addstate, setAddstate] = useState(false)
     const [TextSearch, setTextSearch] = useState("")
@@ -21,6 +23,11 @@ function Group(){
         "Fonction": ""
     })
    
+    const LoadImage = (Image) => {
+        const converted_blob = base64StringToBlob(Image, "image/png");
+        const blobUrl = URL.createObjectURL(converted_blob);
+        return blobUrl  
+    };
 
     const getGroup = async () => {
         let response = await axios.get('groups')
@@ -35,6 +42,22 @@ function Group(){
         })
         .finally(() => {      
     })}
+
+    const getGroupMembers = async (id_group) => {
+        let response = await axios.get(`groups/${id_group}/members`)
+        .then((response) => {
+
+            console.log("reponse groupe membres:..."+response.data)
+            setGroupMembers(response.data)
+            
+        })
+        .catch((error) => {
+            console.log(error)
+        })
+        .finally(() => { 
+            SecondModOpen()     
+    })}
+
     const OpenMod = (id) => {
         setmodIsOpen(true);
         setAddstate(false)
@@ -42,6 +65,15 @@ function Group(){
         seteditGroup(GroupData.filter((data) => data.id === id)[0]);
        
     };
+
+    const SecondModOpen = () =>  {
+        setSecondmodIsOpen(true);
+    };
+
+    const CloseSecondMod = () => {
+        setSecondmodIsOpen(false);
+    };
+
     const CloseMod = () => {
         setmodIsOpen(false);
         seteditGroup(null);
@@ -161,7 +193,8 @@ function Group(){
         {
             name: 'Actions',
             cell: (row) => (
-              <div className="flex gap-2">
+              <div className="flex items-center gap-2">
+                <div className="text-xs text-blue-600 "><button onClick={() => getGroupMembers(row.id)} className="hover:underline hover:underline-offset-2">Voir membres</button></div>
                 <button className="p-2 rounded-full " onClick={() => OpenMod(row.id)}>
                     <svg xmlns="http://www.w3.org/2000/svg" width="1.5rem" height="1rem" viewBox="0 0 24 24"><path fill="blue" d="m14.06 9.02l.92.92L5.92 19H5v-.92zM17.66 3c-.25 0-.51.1-.7.29l-1.83 1.83l3.75 3.75l1.83-1.83a.996.996 0 0 0 0-1.41l-2.34-2.34c-.2-.2-.45-.29-.71-.29m-3.6 3.19L3 17.25V21h3.75L17.81 9.94z"/></svg>
                 </button>
@@ -214,7 +247,7 @@ function Group(){
                         <form className="w-[80%]" onSubmit={handleSave}>
                             <div>
                                 <label className="block mb-2 text-sm font-medium text-gray-900">Nom du groupe:</label>
-                                <input name="Name_group" type="text" onChange={handleValueChange} value={editGroup.Name_group} className=" border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 " placeholder="Username" required />
+                                <input name="Name_group" type="text" onChange={handleValueChange} value={editGroup.Name_group} className=" border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 "  required />
                             </div>
                             <br />
                             <div>
@@ -235,6 +268,44 @@ function Group(){
                         </form>
                     </div>
                     )}
+            </ReactModal>
+            <ReactModal
+                    isOpen={SecondmodIsOpen}
+                    onRequestClose={CloseSecondMod}
+                    contentLabel="Modifier un groupe"
+                    className="absolute overflow-y-auto  top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 h-[50%] w-[80%] md:w-[50%] bg-white rounde-lg border-2 p-2 shadow-md"
+                    ariaHideApp={false}>
+                    <h2 className="text-lg font-semibold mb-4">Liste des membres:<span className="font-bold text-xl ml-4">{GroupMembers.length.toString()}</span></h2>
+                    {GroupMembers &&
+                        <table className="table-auto w-full ">
+                            <thead>
+                                <tr>
+                                <th className="border-2">Image</th>
+                                <th className="border-2">Nom</th>
+                                <th className="border-2">Prénoms</th>
+                                <th className="border-2">Adresse</th>
+                                <th className="border-2">Numéro</th>
+                                </tr>
+                            </thead>
+                            <tbody className="text-sm">
+                                {GroupMembers.map((data) => 
+                                    <tr className="shadow-md my-2 py-4">
+                                        <td> 
+                                            <div className="m-[0.2rem]">
+                                                <img className="w-16 h-16 " src={LoadImage(data.Image)} />
+                                            </div>
+                                        </td>
+                                        <td>{data.Name}</td>
+                                        <td>{data.First_name}</td>
+                                        <td>{data.Adress}</td>
+                                        <td>{data.Phone}</td>
+                                    </tr>
+                                )}
+                                
+                            </tbody>
+                        </table>
+                    }
+                    
             </ReactModal>
         </div>
 

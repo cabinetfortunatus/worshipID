@@ -124,7 +124,9 @@ function Member(){
         formData.append("Adress", editMember.Adress)
         formData.append("Gender", editMember.Gender)
         formData.append("Phone", editMember.Phone)
-        formData.append("group_id", editMember.group_id)
+        if(editMember.group_id != null ){
+            formData.append("group_id", editMember.group_id)
+         }
         if(ImageFile != null)
             formData.append("Image", ImageFile)
         
@@ -309,37 +311,37 @@ function Member(){
                         <form className="w-[80%]" onSubmit={handleSave}>
                             <div>
                                 <label htmlFor="Name" className="block mb-2 text-sm font-medium text-gray-900">Nom:</label>
-                                <input name="Name" id="Name" type="text" onChange={handleValueChange} value={editMember.Name} className=" border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 " placeholder="Nom" required />
+                                <input name="Name" id="Name" type="text" onChange={handleValueChange} value={editMember.Name} className=" border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 "  required />
                             </div>
                             <br />
                             <div>
                                 <label htmlFor="First_name" className="block mb-2 text-sm font-medium text-gray-900">Prénoms:</label>
-                                <input  name="First_name" id="First_name" type="text" onChange={handleValueChange} value={editMember.First_name} className=" border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 " placeholder="Prénoms" required />
+                                <input  name="First_name" id="First_name" type="text" onChange={handleValueChange} value={editMember.First_name} className=" border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 "  required />
                             </div>
                             <div>
                                 <label htmlFor="Adresse" className="block mb-2 text-sm font-medium text-gray-900">Adresse:</label>
-                                <input name="Adress" id="Adresse" type="text" onChange={handleValueChange} value={editMember.Adress} className=" border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 " placeholder="Adresse" required />
+                                <input name="Adress" id="Adresse" type="text" onChange={handleValueChange} value={editMember.Adress} className=" border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 "  required />
                             </div>
                             <div>
                                 <label htmlFor="Gender" className="block mb-2 text-sm font-medium text-gray-900">Genre:</label>
-                                <select name="Gender" id="Gender" type="text" onChange={handleValueChange} value={editMember.Gender} className=" border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 " placeholder="Genre" required >
+                                <select name="Gender" id="Gender" type="text" onChange={handleValueChange} value={editMember.Gender} className=" border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 "  required >
                                     <option value="male">Male</option>
                                     <option value="female">Femelle</option>
                                 </select>
                             </div>
                             <div>
                                 <label htmlFor="Phone" className="block mb-2 text-sm font-medium text-gray-900">Numéro de téléphone:</label>
-                                <input name="Phone" id="Phone" type="number" onChange={handleValueChange} maxLength={10} value={editMember.Phone} className=" border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 " placeholder="Numéro de téléphone" required />
+                                <input name="Phone" id="Phone" type="number" onChange={handleValueChange} maxLength={10} value={editMember.Phone} className=" border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 "  required />
                             </div>
                             <div className="flex gap-2 items-center my-4">
                                 <span>Ajouter à un groupe:</span>
-                                <button onClick={Check}><svg xmlns="http://www.w3.org/2000/svg" width="1.5rem" height="1.5rem" viewBox="0 0 20 20"><path fill="blue" d="M11 9V5H9v4H5v2h4v4h2v-4h4V9zm-1 11a10 10 0 1 1 0-20a10 10 0 0 1 0 20"></path></svg></button>
+                                <button onClick={Check} type="button"><svg xmlns="http://www.w3.org/2000/svg" width="1.5rem" height="1.5rem" viewBox="0 0 20 20"><path fill="blue" d="M11 9V5H9v4H5v2h4v4h2v-4h4V9zm-1 11a10 10 0 1 1 0-20a10 10 0 0 1 0 20"></path></svg></button>
                             </div>
                             {AddToAGroup &&
                                 <div>
                                         <label htmlFor="group_id" className="block mb-2 text-sm font-medium text-gray-900">Séléctionner un groupe:</label>
-                                        <select name="group_id" id="group_id" type="text" onChange={handleValueChange} className=" border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 " placeholder="Groupe" required >
-                                            <option sel>Séléctionner un groupe</option>
+                                        <select name="group_id" id="group_id" type="text" onChange={handleValueChange} className=" border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 " required >
+                                            <option >Séléctionner un groupe</option>
                                             {GroupList.map((option) => 
                                                 <option value={option["id"]} >{option["Name_group"]}</option>
                                             )}

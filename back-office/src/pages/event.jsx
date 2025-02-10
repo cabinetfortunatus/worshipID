@@ -3,7 +3,7 @@ import  {Axios} from  "../api/axios";
 import DataTable from "react-data-table-component";
 import ReactModal from 'react-modal';
 import { useAuthUser } from "react-auth-kit";
-
+import { base64StringToBlob } from "blob-util";
 function Event(){
     const axios =  Axios()
     const User = useAuthUser()
@@ -13,6 +13,7 @@ function Event(){
     const [addstate, setAddstate] = useState(false)
     const [GroupData, setGroupData] = useState([])
     const [Participants, setParticipants] = useState([])
+    const [GroupMember, setGroupMember] = useState([])
     const [TextSearch, setTextSearch] = useState("")
     const [SecondModal, setSecondModal] =  useState(false)
     const [trigger, setTrigger] = useState(false)
@@ -26,6 +27,11 @@ function Event(){
         "target_type": "all_members",
         "Id_group":null
     })
+    const LoadImage = (Image) => {
+                const converted_blob = base64StringToBlob(Image, "image/png");
+                const blobUrl = URL.createObjectURL(converted_blob);
+                return blobUrl  
+            };
     const getEvent = async () => {
         let response = await axios.get('event')
         .then((response) => {
@@ -57,26 +63,49 @@ function Event(){
         })
 
     }
-    const ShowList = (Id_group) => {
-        GetGroupMember(Id_group)
+    const ShowList = () => {
         setSecondModal(true); 
-        
     }
-    const GetGroupMember = async (Id_group) => {
-        let response = await axios.get(`groups/${Id_group}/members`)
-        .then((response) => {
 
-            console.log("Membre-Groupe:"+response.data) 
-            setParticipants(response.data) 
-            
-        })
-        .catch((error) => {
-            console.log(error)
-        })
-        .finally(() =>{
-            console.log("particip..."+Participants)
-            
-        })
+    const GetGroupMember = async (Id_group,target_type) => {
+        if(target_type === "all_members"){
+            console.log(target_type)
+            let response = await axios.get(`members`)
+            .then((response) => {
+
+                console.log("Membre-Groupe:11111"+response.data) 
+                setParticipants(response.data) 
+                
+            })
+            .catch((error) => {
+                console.log(error)
+            })
+            .finally(() =>{
+                console.log("partici"+Participants)
+                ShowList()
+                
+            })
+        }
+        else{
+            console.log(target_type)
+            let response = await axios.get(`groups/${Id_group}/members`)
+            .then((response) => {
+
+                console.log("Membre-Groupe:222222"+response.data) 
+                setParticipants(response.data) 
+                
+            })
+            .catch((error) => {
+                console.log(error)
+            })
+            .finally(() =>{
+                console.log("particip..."+Participants)
+                ShowList()
+                
+            })
+
+        }
+        
         
     }
     const GetGroupName = (Id_group) =>{
@@ -284,7 +313,7 @@ function Event(){
             cell: (row) => (
               <div className="flex items-center justify-center gap-2">
                     <span>{GetGroupName(row.Id_group)}</span>
-                    <button className="p-2 rounded-full " onClick={() => ShowList(row.Id_group)}>
+                    <button className="p-2 rounded-full " onClick={() => GetGroupMember(row.Id_group, row.target_type)}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="1rem" height="1rem" viewBox="0 0 1024 1024"><path fill="currentColor" d="M704 192h160v736H160V192h160v64h384zM288 512h448v-64H288zm0 256h448v-64H288zm96-576V96h256v96z"></path></svg>
                     </button> 
               </div>
@@ -357,28 +386,28 @@ function Event(){
                         <form className="w-[80%]" onSubmit={handleSave}>
                             <div>
                                 <label htmlFor="Code_event" className="block mb-2 text-sm font-medium text-gray-900">Code évenement:</label>
-                                <input name="Code_event" id="Name" type="text" onChange={handleValueChange} value={editEvent.Code_event} className=" border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 " placeholder="code" required />
+                                <input name="Code_event" id="Name" type="text" onChange={handleValueChange} value={editEvent.Code_event} className=" border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 "  required />
                             </div>
                             <br />
                             <div>
                                 <label htmlFor="Name_event" className="block mb-2 text-sm font-medium text-gray-900">Nom:</label>
-                                <input  name="Name_event" id="Name_event" type="text" onChange={handleValueChange} value={editEvent.Name_event} className=" border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 " placeholder="Prénoms" required />
+                                <input  name="Name_event" id="Name_event" type="text" onChange={handleValueChange} value={editEvent.Name_event} className=" border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 "  required />
                             </div>
                             <div>
                                 <label htmlFor="Theme" className="block mb-2 text-sm font-medium text-gray-900">Thème:</label>
-                                <input name="Theme" id="Theme" type="text" onChange={handleValueChange} value={editEvent.Theme} className=" border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 " placeholder="Adresse" required />
+                                <input name="Theme" id="Theme" type="text" onChange={handleValueChange} value={editEvent.Theme} className=" border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 "  required />
                             </div>
                             <div>
                                 <label htmlFor="Date" className="block mb-2 text-sm font-medium text-gray-900">Date:</label>
-                                <input name="Date" id="Date" type="date" onChange={handleValueChange} maxLength={10} value={editEvent.Date} className=" border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 " placeholder="Numéro de téléphone" required />
+                                <input name="Date" id="Date" type="date" onChange={handleValueChange} maxLength={10} value={editEvent.Date} className=" border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 "  required />
                             </div>
                             <div>
                                 <label htmlFor="Duration" className="block mb-2 text-sm font-medium text-gray-900">Durée en minute:</label>   
-                                <input name="Duration" id="Duration" type="number" onChange={handleValueChange}  value={editEvent.Duration} className=" border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 " placeholder="Numéro de téléphone" required />
+                                <input name="Duration" id="Duration" type="number" onChange={handleValueChange}  value={editEvent.Duration} className=" border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 "  required />
                             </div>
                             <div>
                                 <label htmlFor="target_type" className="block mb-2 text-sm font-medium text-gray-900">Cible:</label>
-                                <select name="target_type" id="target_type" type="text" onChange={handleValueChange} defaultValue={editEvent.target_type} className=" border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 " placeholder="Genre" required >
+                                <select name="target_type" id="target_type" type="text" onChange={handleValueChange} defaultValue={editEvent.target_type} className=" border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 " required >
                                     <option value="all_members">Tous les membres</option>
                                     <option value="group">Groupe</option>
                                 </select>
@@ -413,11 +442,31 @@ function Event(){
                 isOpen={SecondModal}
                 onRequestClose={CloseSecondModal}
                 contentLabel="Participants"
-                className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 h-auto w-[80%] md:w-[40%] bg-white rounde-lg border-2 p-2 shadow-md"
+                className="absolute overflow-y-auto top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 h-auto w-[80%] md:w-[40%] bg-white rounde-lg border-2 p-2 shadow-md"
                 ariaHideApp={false}>
-                    {Participants?.[0]?.map((data) => {
-                        <div>{data.Name}</div>
-                    })}
+                    {Participants.map((data) => 
+                        <>
+                            <div className="my-2 text-gray-700 text-sm shadow-sm">
+                                <div className="flex h-16 items-center gap-2 m-[0.2rem]">
+                                    <img className="w-16 h-16 " src={LoadImage(data.Image)} />
+                                    <div className="flex px-2  h-full gap-2 items-center">
+                                        <label className="font-semibold">Id:</label>
+                                        <span>{data.id}</span>
+                                    </div>
+                                    <div className="flex px-2 h-full gap-2 items-center">
+                                        <label className="font-semibold">Nom:</label>
+                                        <span>{data.Name}</span>
+                                    </div>
+                                    <div className="flex px-2 w-20 h-full gap-2 items-center">
+                                        <label className="font-semibold">Prénoms:</label>
+                                        <span>{data.First_name}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </>
+                    )}
+                
             </ReactModal>
         </div>
 

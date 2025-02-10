@@ -3,7 +3,7 @@ from flask_restx import Namespace, Resource, fields
 from app.modele.model_groups import Groups  
 from app.modele.model_members import Members 
 from app.configuration.exts import db 
-
+import base64 
 
 groups_ns = Namespace('groups', description="Gestion des groupes")
 
@@ -86,4 +86,4 @@ class GroupMembers(Resource):
             for member in members
         ]
 
-        return {"members": result}, 200
+        return  result, 200
