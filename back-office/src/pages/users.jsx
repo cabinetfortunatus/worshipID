@@ -17,7 +17,7 @@ function Users(){
     })
    
     const getUser = async () => {
-        let response = await axios.get('users')
+        let response = await axios.get('users/signUp')
         .then((response) => {
 
             console.log(response.data)
@@ -61,7 +61,7 @@ function Users(){
         }
     
         console.log(formData)
-        axios.put(`users/${editUser.id}`, formData)
+        axios.put(`users/signUp/${editUser.id}`, formData)
         .then(() => {
             alert('Modification effectuée');
             CloseMod();
@@ -78,7 +78,7 @@ function Users(){
             "Etes-vous vraiment sûr de vouloir supprimer?"
           );
         if(confirm){
-            axios.delete(`users/${id}`)
+            axios.delete(`users/signUp/${id}`)
                 .then(() => {
                 alert('Item supprimé');
                 getUser()

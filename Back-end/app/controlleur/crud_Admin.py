@@ -1,4 +1,4 @@
-from flask import request, jsonify, make_response
+from flask import request
 from flask_restx import Resource, fields, Namespace
 from app.modele.model_Admin import Admin
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -60,7 +60,7 @@ class SignUp(Resource):
             Username=Username,
             Password=generate_password_hash(data.get("Password")),
             Image=image_data,
-            Permission=Permission,
+            Permission=Permission ,
         )
         db.session.add(new_admin)
         db.session.commit()
@@ -116,7 +116,6 @@ class SignUpById(Resource):
             db.session.rollback()
             return {"message": f"Une erreur est survenue : {str(e)}"}, 500
 
-
 @Admin_ns.route("/Login")
 class Login(Resource):
     @jwt_required()
@@ -160,7 +159,6 @@ class Login(Resource):
 class Refresh(Resource):
     @jwt_required(refresh=True)
     def post(self):
-        """Rafraîchir le token d'accès."""
         current_user = get_jwt_identity()
         new_access_token = create_access_token(identity=current_user)
         return {"access_token": new_access_token}, 200

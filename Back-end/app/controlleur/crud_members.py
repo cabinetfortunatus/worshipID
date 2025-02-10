@@ -14,7 +14,6 @@ member_model = members_ns.model(
     "Member",
     {
         "id": fields.Integer(),
-        "Id_users": fields.Integer(required=True),
         "Name": fields.String(required=True),
         "First_name": fields.String(required=True),
         "Adress": fields.String(required=True),
@@ -85,7 +84,6 @@ class MemberList(Resource):
             print("Aucune image reçue")
 
         new_member = Members(
-            Id_users=data.get('Id_users'),
             Name=data.get('Name'),
             First_name=data.get('First_name'),
             Adress=data.get('Adress'),
@@ -129,7 +127,6 @@ class MemberResource(Resource):
         if not data.get('Name') or not data.get('First_name') or not data.get('Adress') or not data.get('Gender') or not data.get('Phone'):
             return {"message": "Tous les champs obligatoires doivent être remplis"}, 400
 
-        member_update.Id_users = data.get('Id_users', member_update.Id_users)
         member_update.Name = data.get('Name', member_update.Name)
         member_update.First_name = data.get('First_name', member_update.First_name)
         member_update.Adress = data.get('Adress', member_update.Adress)
@@ -162,18 +159,6 @@ class MemberResource(Resource):
 
         db.session.commit()
         return member_update
-    
-@members_ns.route('/<int:id>/groups')   
-class MemberGroupsResource(Resource):
-    def get(self, id):
-        member = Members.query.get_or_404(id)
-        groups = member.groups 
-        if not groups:
-            return {"message": "Ce membre n'est dans aucun groupe."}, 404
-
-        group_names = [group.Name_group for group in groups]
-        return {"groups": group_names}, 200
-
 
     @members_ns.marshal_with(member_model)
     def delete(self, id):
