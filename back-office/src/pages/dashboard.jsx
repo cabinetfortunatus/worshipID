@@ -1,10 +1,12 @@
 import {Axios} from "../api/axios"
 import { useState , useEffect} from "react";
+import { base64StringToBlob } from "blob-util";
 function Dashboard(){
     const [Event, setEvent] = useState([]);
     const [Admin, setAdmin] = useState([]);
     const [Groups, setGroups] = useState([]);
     const [Members, setMembers] = useState([]);
+    const [Rank, setRank] = useState([]);
     const [Option, setOption] = useState({
         "Id_event": null,
         "nb_admin":null,
@@ -16,6 +18,11 @@ function Dashboard(){
    
     })
     const axios =  Axios()
+    const LoadImage = (Image) => {
+        const converted_blob = base64StringToBlob(Image, "image/png");
+        const blobUrl = URL.createObjectURL(converted_blob);
+        return blobUrl  
+    };
     const getStatAdmin = async () =>{
         let response = await axios.get('Admin/signUp')
         .then((response) => {
@@ -49,7 +56,7 @@ function Dashboard(){
         let response = await axios.get('members/ranking')
         .then((response) => {
             console.log("rank"+response.data)
-            setMembers(response.data)
+            setRank(response.data)
             
         })
         .catch((error) => {
@@ -70,6 +77,7 @@ function Dashboard(){
         })
         .finally(() => {      
     })}
+   
     const getEvent = async () => {
         let response = await axios.get('event')
         .then((response) => {
@@ -108,6 +116,7 @@ function Dashboard(){
         getStatAdmin()
         getGroup()
         getMember()
+        getRanking()
     },[])
     useEffect(()=>{
         Stat()
@@ -170,8 +179,36 @@ function Dashboard(){
                     </select>
                 </div>
             </div>
-            <div className="">
-                second part
+            <div className="p-4">
+                <table className="table-auto w-full ">
+                                <thead>
+                                    <tr>
+                                    <th className="border-2">Image</th>
+                                    <th className="border-2">Nom</th>
+                                    <th className="border-2">Prénoms</th>
+                                    <th className="border-2">Adresse</th>
+                                    <th className="border-2">Numéro</th>
+                                    <th className="border-2">Score</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="text-sm">
+                                    {Rank.map((data) => 
+                                        <tr key={data.id} className="shadow-md my-2 py-4">
+                                            <td> 
+                                                <div className="m-[0.2rem]">
+                                                    <img className="w-16 h-16 " src={LoadImage(data.Image)} />
+                                                </div>
+                                            </td>
+                                            <td>{data.Name}</td>
+                                            <td>{data.First_name}</td>
+                                            <td>{data.Adress}</td>
+                                            <td>{data.Phone}</td>
+                                            <td>{data.Score}</td>
+                                        </tr>
+                                    )}
+                                    
+                                </tbody>
+                </table>
             </div>
         </div>
         

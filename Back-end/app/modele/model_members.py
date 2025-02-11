@@ -10,6 +10,7 @@ class Members(db.Model):
     Gender = db.Column(db.String(10), nullable=False)
     Phone = db.Column(db.String(20), nullable=False)
     Image = db.Column(db.LargeBinary(), nullable=False)
+    Score = db.Column(db.Float(10), nullable = True)
 
     users = relationship("Users", uselist=False, back_populates="member")
     groups = relationship('Groups', 
@@ -34,13 +35,14 @@ class Members(db.Model):
         db.session.delete(self)
         db.session.commit()
     
-    def update(self, Name, First_name, Adress, Gender, Phone, Image):
+    def update(self, Name, First_name, Adress, Gender, Phone, Image, Score):
         self.Name = Name
         self.First_name = First_name
         self.Adress = Adress
         self.Gender = Gender
         self.Phone = Phone
         self.Image = Image
+        self.Score = Score
         db.session.commit()
 
     def add_to_group(self, group):

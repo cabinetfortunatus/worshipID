@@ -2,10 +2,13 @@ from flask import request
 from flask_restx import Namespace, Resource, fields
 from app.modele.model_members import Members
 from app.modele.model_groups import Groups
+from app.modele.model_events import Event
+from app.modele.model_presence import Presence
 from app.configuration.exts import db
 from base64 import b64encode
 from PIL import Image
 from io import BytesIO
+from sqlalchemy import func
 
 
 members_ns = Namespace('members', description="Espace pour gérer les membres")
@@ -20,6 +23,7 @@ member_model = members_ns.model(
         "Gender": fields.String(required=True),
         "Phone": fields.String(required=True),
         "Image": fields.String(required=True),
+        "Score" : fields.Float(required = False,  default=0.0)
     },
 )
 
@@ -29,7 +33,6 @@ add_member_to_group_model = members_ns.model(
         "group_id": fields.Integer(required=True, description="ID du groupe auquel ajouter le membre")
     }
 )
-
 
 def resize_image(image_data, original_format, target_size=(800, 800)):
     
@@ -48,16 +51,36 @@ def resize_image(image_data, original_format, target_size=(800, 800)):
         print(f"Erreur lors du redimensionnement de l'image : {e}")
         return None
 
-
+def calculate_member_score(member_id):
+    try :
+        total_events = db.session.query(func.count(Event.id)).filter(
+            ((Event.target_type == 'all_members') | ((Event.target_type == 'group') & (Event.Id_group == Members.Id_group)))
+        ).filter(Members.id == member_id).scalar() or 0
+        
+        #Nombre d'event ou le membre était present
+        present_events = db.session.query(func.count(Presence.id)).filter(
+            Presence.Id_member == member_id
+        ).scalar or 0
+        
+        #calcule des pourcentage de presence
+        if total_events > 0:
+            score = (present_events / total_events) * 100
+            return round(score, 2)
+        return 0
+    
+    except Exception as e:
+        print(f"Erreur lors du calcul du score : {e}")
+        return 0
+    
 @members_ns.route("/")
 class MemberList(Resource):
     @members_ns.marshal_with(member_model)
     def get(self):
-       
         all_members = Members.query.all()
         for member in all_members:
             if member.Image:
                 member.Image = b64encode(member.Image).decode('utf-8')
+            member.Score = calculate_member_score(member.id)
         return all_members
 
     @members_ns.marshal_with(member_model)
@@ -89,7 +112,8 @@ class MemberList(Resource):
             Adress=data.get('Adress'),
             Gender=data.get('Gender'),
             Phone=data.get('Phone'),
-            Image=image_data
+            Image=image_data,
+            Score = 0
         )
 
      
@@ -156,9 +180,17 @@ class MemberResource(Resource):
         else:
           
             member_update.remove_from_all_groups()
-
-        db.session.commit()
-        return member_update
+        try:
+            db.session.commit()
+            member_update.Score = calculate_member_score(member_update.id)
+            if member_update.Image:
+                member_update.Image = b64encode(member_update.Image).decode('utf-8')
+            return member_update
+        
+        except Exception as e:
+            db.session.rollback()
+            print(f"Erreur lors de la mise à jour du membre : {e}")
+            return {"message": "Une erreur est survenue lors de la mise à jour du membre"}, 500
 
     @members_ns.marshal_with(member_model)
     def delete(self, id):
@@ -167,3 +199,16 @@ class MemberResource(Resource):
         db.session.delete(member_delete)
         db.session.commit()
         return member_delete
+    
+@members_ns.route("/ranking")
+class MemberRanking(Resource):
+    @members_ns.marshal_with(member_model)
+    def get(self):
+        all_members = Members.query.all()
+        for member in all_members:
+            if member.Image:
+                member.Image = b64encode(member.Image).decode('utf-8')
+            member.Score = calculate_member_score(member.id)
+        
+        sorted_members = sorted(all_members, key=lambda x: x.Score, reverse=True)
+        return sorted_members
