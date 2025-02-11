@@ -13,6 +13,7 @@ function Attendance(){
     const [PresenceState, setPresenceState] =  useState(false)
     const [modIsOpen, setmodIsOpen] = useState(false)
     const [TextSearch, setTextSearch] = useState("")
+    const [CurrentEvent, setCurrentEvent] = useState("")
   
 
     const LoadImage = (Image) => {
@@ -38,12 +39,13 @@ function Attendance(){
         })
     }
 
-    const getPresentMember = async (Id_envent) => {
+    const getPresentMember = async (Id_envent, Name_event) => {
         let response = await axios.get(`event/${Id_envent}/MembersPresent`)
         .then((response) => {
 
             console.log("event data:"+response.data)
             setPrensent(response.data)
+            setCurrentEvent(Name_event)
        
             
         })
@@ -55,13 +57,13 @@ function Attendance(){
         })
     }
 
-    const getAbsentMember = async (Id_envent) => {
+    const getAbsentMember = async (Id_envent, Name_event) => {
         let response = await axios.get(`event/${Id_envent}/MembersAbsent`)
         .then((response) => {
 
             console.log("event data:"+response.data)
             setAbsent(response.data)
-            
+            setCurrentEvent(Name_event)
         })
         .catch((error) => {
             console.log(error)
@@ -164,10 +166,10 @@ function Attendance(){
             name: "Présents/Absents",
             cell: (row) => (
               <div className="flex items-center justify-center gap-2">
-                    <button className="p-2 rounded-full " onClick={() => getPresentMember(row.id)}>
+                    <button className="p-2 rounded-full " onClick={() => getPresentMember(row.id, row.Code_event+"/"+row.Name_event)}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="1.5rem" height="1.5rem" viewBox="0 0 24 24"><g fill="none" stroke="green" strokeLinecap="round" strokeWidth={1.5}><path strokeLinejoin="round" d="m14 16l2.1 2.5l3.9-5"></path><path d="M21 6H3m18 4H3m7 4H3m7 4H3"></path></g></svg>
                     </button> 
-                    <button className="p-2 rounded-full " onClick={() => getAbsentMember(row.id)}>
+                    <button className="p-2 rounded-full " onClick={() => getAbsentMember(row.id, row.Code_event+"/"+row.Name_event)}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="1.5rem" height="1.5rem" viewBox="0 0 24 24"><path fill="red" fillRule="evenodd" d="M2.25 6A.75.75 0 0 1 3 5.25h18a.75.75 0 0 1 0 1.5H3A.75.75 0 0 1 2.25 6m0 4A.75.75 0 0 1 3 9.25h18a.75.75 0 0 1 0 1.5H3a.75.75 0 0 1-.75-.75m12.22 2.97a.75.75 0 0 1 1.06 0l1.97 1.97l1.97-1.97a.75.75 0 1 1 1.06 1.06L18.56 16l1.97 1.97a.75.75 0 1 1-1.06 1.06l-1.97-1.97l-1.97 1.97a.75.75 0 1 1-1.06-1.06L16.44 16l-1.97-1.97a.75.75 0 0 1 0-1.06M2.25 14a.75.75 0 0 1 .75-.75h8a.75.75 0 0 1 0 1.5H3a.75.75 0 0 1-.75-.75m0 4a.75.75 0 0 1 .75-.75h8a.75.75 0 0 1 0 1.5H3a.75.75 0 0 1-.75-.75" clipRule="evenodd"></path></svg>
                     </button>
               </div>
@@ -208,8 +210,12 @@ function Attendance(){
                     contentLabel={PresenceState ? "Liste des membres présents:":"Liste des membres absents"}
                     className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 h-auto w-[80%] md:w-[40%] bg-white rounde-lg border-2 p-2 shadow-md"
                     ariaHideApp={false}>
-                    <h2 className="text-lg font-semibold mb-4">{PresenceState ? "Liste des membres présents:":"Liste des membres absents"}</h2>
+                    <h2 className="text-lg font-semibold mb-4">{PresenceState ? "Liste des membres présents:":"Liste des membres absents:"}</h2>
                         {PresenceState &&
+                            <>
+                             <div className="w-full flex justify-center">
+                                <h1 className="font-bold text-lg mb-4">{CurrentEvent}</h1>
+                             </div>
                             <table className="table-auto w-full ">
                                 <thead>
                                     <tr>
@@ -239,8 +245,13 @@ function Attendance(){
                                     )}
                                 </tbody>
                             </table>
+                            </>
                             }
                             {!PresenceState &&
+                            <>
+                            <div className="w-full flex justify-center">
+                                <h1 className="font-bold text-lg mb-4">{CurrentEvent}</h1>
+                            </div>
                             <table className="table-auto w-full ">
                                 <thead>
                                     <tr>
@@ -270,6 +281,7 @@ function Attendance(){
                                     )}
                                 </tbody>
                             </table>
+                            </>
                             }
                             <br />
                             <div className="flex items-center gap-6 my-4">

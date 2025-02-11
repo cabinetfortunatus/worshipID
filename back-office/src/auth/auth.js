@@ -25,12 +25,7 @@ export const Authentication =() => {
                 // refreshTokenExpireIn:86400
             });
             setError_msg('');
-            Navigate('/home')
-                
-    
-        
-            
-            
+            Navigate('/home')     
     
         }
         catch(error){

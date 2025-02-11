@@ -444,6 +444,7 @@ function Event(){
                 contentLabel="Participants"
                 className="absolute overflow-y-auto top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 h-auto w-[80%] md:w-[40%] bg-white rounde-lg border-2 p-2 shadow-md"
                 ariaHideApp={false}>
+                    
                     <table className="table-auto w-full ">
                             <thead>
                                 <tr>
