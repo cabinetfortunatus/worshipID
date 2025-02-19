@@ -9,7 +9,7 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(DevConfig)
     db.init_app(app)
-    CORS(app, resources={r"/*": {"origins": ["http://localhost:5173"]}},
+    CORS(app, resources={r"/*": {"origins": ["http://localhost:3000"]}},
         methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         allow_headers=["Content-Type", "Authorization"],
         expose_headers=["Authorization"],

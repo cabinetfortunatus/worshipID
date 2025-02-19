@@ -1,0 +1,45 @@
+services:
+  back-office:
+    build:
+      context: ./back-office
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    networks:
+      - app_network
+
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: face_recognize
+      MYSQL_USER: caf@admin
+      MYSQL_PASSWORD: caf@tananarive2025
+      MYSQL_ROOT_PASSWORD: caf@tananarive2025
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./db/sql:/docker-entrypoint-initdb.d
+    ports:
+      - "3306:3306"
+    networks:
+      - app_network
+
+  back-end:
+    build:
+      context: ./back-end
+      dockerfile: Dockerfile
+    command: python main.py
+    ports:
+      - "5000:5000"
+    environment:
+      - DATABASE_URL=mysql://root:caf@tananarive2025@db:3306/face_recognize
+    networks:
+      - app_network
+
+
+
+volumes:
+  mysql_data:
+
+networks:
+  app_network:
+    driver: bridge

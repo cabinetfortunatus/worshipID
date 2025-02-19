@@ -210,11 +210,12 @@ function Attendance(){
                     contentLabel={PresenceState ? "Liste des membres présents:":"Liste des membres absents"}
                     className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 h-auto w-[80%] md:w-[40%] bg-white rounde-lg border-2 p-2 shadow-md"
                     ariaHideApp={false}>
-                    <h2 className="text-lg font-semibold mb-4">{PresenceState ? "Liste des membres présents:":"Liste des membres absents:"}</h2>
+                        <h2 className="text-lg font-semibold mb-4">{PresenceState ? "Liste des membres présents:":"Liste des membres absents:"}<span className="text-lg font-bold ml-2 text-blue-950">{PresenceState ? `${Prensent.length.toString()}`:`${Absent.length.toString()}`}</span></h2>
+
                         {PresenceState &&
                             <>
                              <div className="w-full flex justify-center">
-                                <h1 className="font-bold text-lg mb-4">{CurrentEvent}</h1>
+                                <h1 className="font-semibold text-sm mb-4">{CurrentEvent}</h1>
                              </div>
                             <table className="table-auto w-full ">
                                 <thead>
@@ -250,7 +251,7 @@ function Attendance(){
                             {!PresenceState &&
                             <>
                             <div className="w-full flex justify-center">
-                                <h1 className="font-bold text-lg mb-4">{CurrentEvent}</h1>
+                                <h1 className="font-semibold text-sm mb-4">{CurrentEvent}</h1>
                             </div>
                             <table className="table-auto w-full ">
                                 <thead>

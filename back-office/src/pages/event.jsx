@@ -4,6 +4,7 @@ import DataTable from "react-data-table-component";
 import ReactModal from 'react-modal';
 import { useAuthUser } from "react-auth-kit";
 import { base64StringToBlob } from "blob-util";
+import * as XLSX from 'xlsx';
 function Event(){
     const axios =  Axios()
     const User = useAuthUser()
@@ -32,6 +33,7 @@ function Event(){
                 const blobUrl = URL.createObjectURL(converted_blob);
                 return blobUrl  
             };
+
     const getEvent = async () => {
         let response = await axios.get('event')
         .then((response) => {
@@ -252,6 +254,29 @@ function Event(){
         }
 
     }
+    const exportToExcel = () => {
+       
+            const formattedData = FilteredData.map(row => ({
+                "id": row.id,
+                "Id admin": row.Id_admin,
+                "Id groupe": row.Id_group,
+                "Code évènement": row.Code_event,
+                "Nom évènement": row.Name_event,
+                "Thème": row.Theme,
+                "Date": row.Date,
+                "Duration": row.Duration,
+                "Cible": row.target_type,
+                
+            }));
+        
+            const ws = XLSX.utils.json_to_sheet(formattedData);
+    
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Data');
+    
+            XLSX.writeFile(wb, 'Liste des Evènements.xlsx');
+          };
+    
 
     useEffect(() => {   
         getEvent()
@@ -346,10 +371,13 @@ function Event(){
    
     return(<>
         <div>
-            <div className="ml-4 my-4">
+            <div className="flex gap-4 ml-4 my-4">
                 <button className=" flex items-center gap-2 w-auto p-2 bg-green-600 text-white rounded-md" onClick={handleAdd}>Créer un évenement
                     <svg xmlns="http://www.w3.org/2000/svg" width="1.5rem" height="1.5rem" viewBox="0 0 24 24"><path fill="white" d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10s10-4.477 10-10S17.523 2 12 2m5 11h-4v4h-2v-4H7v-2h4V7h2v4h4z"></path></svg>
                 </button> 
+                <button className=" flex items-center gap-2 w-auto p-2 bg-gray-900 text-white rounded-md" onClick={exportToExcel}>Exporter
+                    <svg xmlns="http://www.w3.org/2000/svg" width="1.5rem" height="1.5rem" viewBox="0 0 12 12"><path fill="white" d="M10.5 4h-2C7.67 4 7 3.33 7 2.5v-2c0-.28-.22-.5-.5-.5H2c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h8c.55 0 1-.45 1-1V4.5c0-.28-.22-.5-.5-.5m-6 6h-1c-.28 0-.5-.22-.5-.5s.22-.5.5-.5h1c.28 0 .5.22.5.5s-.22.5-.5.5m0-2h-1c-.28 0-.5-.22-.5-.5s.22-.5.5-.5h1c.28 0 .5.22.5.5s-.22.5-.5.5m0-2h-1c-.28 0-.5-.22-.5-.5s.22-.5.5-.5h1c.28 0 .5.22.5.5s-.22.5-.5.5m4 4h-2c-.28 0-.5-.22-.5-.5s.22-.5.5-.5h2c.28 0 .5.22.5.5s-.22.5-.5.5m0-2h-2c-.28 0-.5-.22-.5-.5s.22-.5.5-.5h2c.28 0 .5.22.5.5s-.22.5-.5.5m0-2h-2c-.28 0-.5-.22-.5-.5s.22-.5.5-.5h2c.28 0 .5.22.5.5s-.22.5-.5.5M8 .5V2c0 .55.45 1 1 1h1.5c.45 0 .67-.54.35-.85l-2-2C8.54-.17 8 .06 8 .5"></path></svg>
+                </button>
                   
             </div>
             

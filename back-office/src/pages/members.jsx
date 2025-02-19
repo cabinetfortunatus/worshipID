@@ -4,6 +4,8 @@ import DataTable from "react-data-table-component";
 import ReactModal from 'react-modal';
 import { useAuthUser } from "react-auth-kit";
 import { base64StringToBlob } from "blob-util";
+import * as XLSX from 'xlsx';
+
 function Member(){
     const axios =  Axios()
     const User = useAuthUser()
@@ -194,6 +196,24 @@ function Member(){
         }
 
     }
+    const exportToExcel = () => {
+   
+        const formattedData = FilteredData.map(row => ({
+            "Id": row.id,
+            "Nom":row.Name,
+            "Prénoms":row.First_name,
+            "Adresse": row.Adress,
+            "Sexe": row.Gender,
+            "Téléphone": row.Phone,
+        }));
+    
+        const ws = XLSX.utils.json_to_sheet(formattedData);
+
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Data');
+
+        XLSX.writeFile(wb, 'Liste des Membres.xlsx');
+      };
 
     useEffect(() => {   
         getMember()
@@ -272,11 +292,13 @@ function Member(){
    
     return(<>
         <div>
-            <div className="ml-4 my-4">
+            <div className="flex gap-4 ml-4 my-4">
                 <button className=" flex items-center gap-2 w-auto p-2 bg-green-600 text-white rounded-md" onClick={handleAdd}>Ajouter un membre
                     <svg xmlns="http://www.w3.org/2000/svg" width="1.5rem" height="1.5rem" viewBox="0 0 24 24"><path fill="white" d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10s10-4.477 10-10S17.523 2 12 2m5 11h-4v4h-2v-4H7v-2h4V7h2v4h4z"></path></svg>
                 </button> 
-                  
+                <button className=" flex items-center gap-2 w-auto p-2 bg-gray-900 text-white rounded-md" onClick={exportToExcel}>Exporter
+                    <svg xmlns="http://www.w3.org/2000/svg" width="1.5rem" height="1.5rem" viewBox="0 0 12 12"><path fill="white" d="M10.5 4h-2C7.67 4 7 3.33 7 2.5v-2c0-.28-.22-.5-.5-.5H2c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h8c.55 0 1-.45 1-1V4.5c0-.28-.22-.5-.5-.5m-6 6h-1c-.28 0-.5-.22-.5-.5s.22-.5.5-.5h1c.28 0 .5.22.5.5s-.22.5-.5.5m0-2h-1c-.28 0-.5-.22-.5-.5s.22-.5.5-.5h1c.28 0 .5.22.5.5s-.22.5-.5.5m0-2h-1c-.28 0-.5-.22-.5-.5s.22-.5.5-.5h1c.28 0 .5.22.5.5s-.22.5-.5.5m4 4h-2c-.28 0-.5-.22-.5-.5s.22-.5.5-.5h2c.28 0 .5.22.5.5s-.22.5-.5.5m0-2h-2c-.28 0-.5-.22-.5-.5s.22-.5.5-.5h2c.28 0 .5.22.5.5s-.22.5-.5.5m0-2h-2c-.28 0-.5-.22-.5-.5s.22-.5.5-.5h2c.28 0 .5.22.5.5s-.22.5-.5.5M8 .5V2c0 .55.45 1 1 1h1.5c.45 0 .67-.54.35-.85l-2-2C8.54-.17 8 .06 8 .5"></path></svg>
+                </button>
             </div>
             
             <div className="relative max-w-md mx-auto">   
@@ -291,14 +313,14 @@ function Member(){
                     <button type="button" className="text-white absolute end-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 " onClick={HandleSearch}>Chercher...</button>
                 </div>
             </div>
-
-            <DataTable 
-            columns={columns} 
-            data={FilteredData} 
-            title="Membres" 
-            striped
-            pagination 
-            />
+        
+                <DataTable 
+                columns={columns} 
+                data={FilteredData} 
+                title="Membres" 
+                striped
+                pagination 
+                />
 
             <ReactModal
                     isOpen={modIsOpen}
