@@ -32,7 +32,7 @@ const buttonShowPass = () => {
 
 
 return(<>
-    <div className='flex flex-col md:flex-1 items-center justify-center w-full h-screen bg-gradient-to-b from-white to-blue-400'>
+    <div className='relative flex flex-col md:flex-1 items-center justify-center w-full min-h-screen bg-gradient-to-b from-white to-blue-400'>
         <div className='flex md:hidden w-40 h-40 mx-auto'>
             <Player src={church} className="player" loop autoplay />
         </div>
@@ -82,7 +82,7 @@ return(<>
                         </button>
                     </div>
                     <div className='w-full my-4 text-sm flex items-center text-red-600 justify-center'>{error_msg}</div>
-                    <button className='mb-2 rounded-md bg-blue-500 px-4 py-2 w-32 mb-4 text-white font-semibold' onClick={handleLogin}>{isLogLoading ? (<PulseLoader size={10} color='#fff' />):'Se connecter' }</button>
+                    <button className='rounded-md bg-blue-500 px-4 py-2 w-32 mb-4 text-white font-semibold' onClick={handleLogin}>{isLogLoading ? (<PulseLoader size={10} color='#fff' />):'Se connecter' }</button>
                 </form>
             </div>
             <div className='hidden md:flex items-center justify-center bg-white w-full h-full rounded-tr-xl rounded-br-xl'>

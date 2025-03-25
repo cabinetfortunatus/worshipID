@@ -11,7 +11,7 @@ function Event(){
     return(<>
     
         <div className="w-full h-full">
-            <div className="grid flex flex-col lg:grid-cols-4 lg:grid-rows-2 w-full h-auto  p-10 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-4 lg:grid-rows-2 w-full h-auto  p-10 gap-4">
                 <div className="w-full h-auto rounded-2xl flex flex-col items-center border-2 border-teal-200 shadow-gray-300 shadow-xl">
                     <div className="w-52">
                         <Player src={Dashboard} className="player " loop autoplay />

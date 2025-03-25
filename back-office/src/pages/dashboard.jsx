@@ -349,47 +349,49 @@ function Dashboard(){
                    
                 </div>
             </div>
-            <div className="flex flex-col mt-10 lg:mt-0 lg:p-4">
+            <div className="flex flex-col mt-10 lg:mt-0 lg:p-4 h-full">
                 <button className=" flex items-center gap-2 w-28 p-2 bg-gray-900 text-white rounded-md" onClick={exportToExcel}>Exporter
                     <svg xmlns="http://www.w3.org/2000/svg" width="1.5rem" height="1.5rem" viewBox="0 0 12 12"><path fill="white" d="M10.5 4h-2C7.67 4 7 3.33 7 2.5v-2c0-.28-.22-.5-.5-.5H2c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h8c.55 0 1-.45 1-1V4.5c0-.28-.22-.5-.5-.5m-6 6h-1c-.28 0-.5-.22-.5-.5s.22-.5.5-.5h1c.28 0 .5.22.5.5s-.22.5-.5.5m0-2h-1c-.28 0-.5-.22-.5-.5s.22-.5.5-.5h1c.28 0 .5.22.5.5s-.22.5-.5.5m0-2h-1c-.28 0-.5-.22-.5-.5s.22-.5.5-.5h1c.28 0 .5.22.5.5s-.22.5-.5.5m4 4h-2c-.28 0-.5-.22-.5-.5s.22-.5.5-.5h2c.28 0 .5.22.5.5s-.22.5-.5.5m0-2h-2c-.28 0-.5-.22-.5-.5s.22-.5.5-.5h2c.28 0 .5.22.5.5s-.22.5-.5.5m0-2h-2c-.28 0-.5-.22-.5-.5s.22-.5.5-.5h2c.28 0 .5.22.5.5s-.22.5-.5.5M8 .5V2c0 .55.45 1 1 1h1.5c.45 0 .67-.54.35-.85l-2-2C8.54-.17 8 .06 8 .5"></path></svg>
                 </button>
                 <h1 className="flex items-center gap-2 mx-auto font-sans font-semibold text-lg text-gray-800 mb-8">Classement par assiduité des membres <svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24"><path fill="#000" d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2M9 4h2v5l-1-.75L9 9zm9 16H6V4h1v9l3-2.25L13 13V4h5z"></path></svg></h1>
-                    <table className="table-auto w-full ">
-                        <thead className="">
-                            <tr>
-                            <th className=""></th>
-                            <th className="border-[1px]">Image</th>
-                            <th className="border-[1px]">Nom</th>
-                            <th className="border-[1px]">Prénoms</th>
-                            <th className="border-[1px]">Adresse</th>
-                            <th className="border-[1px]">Numéro</th>
-                            <th className="border-[1px]">Sexe</th>
-                            <th className="border-[1px]">Score</th>
-                            </tr>
-                        </thead>
-                        <tbody className="text-sm">
-                            {Rank.map((data, index) => 
-                                    <tr key={data.id} className="shadow-md my-2 py-4">
-                                        <td className="p-4 text-lg font-semibold">{index + 1}</td>
-                                        <td className="flex justify-center"> 
-                                            <div className="m-[0.2rem]">
-                                                <img className="w-10 h-10 lg:w-16 lg:h-16 " src={LoadImage(data.Image)} />
-                                            </div>
-                                        </td>
-                                        <td>{data.Name}</td>
-                                        <td>{data.First_name}</td>
-                                        <td>{data.Adress}</td>
-                                        <td>{data.Phone}</td>
-                                        <td>{data.Gender}</td>
-                                        <td>{data.Score.toString()}</td>
-                                    </tr>
-                            
-                            
+                    <div className="h-[60%] overflow-y-auto">
+                        <table className="table-auto w-full ">
+                            <thead className="">
+                                <tr>
+                                <th className=""></th>
+                                <th className="border-[1px]">Image</th>
+                                <th className="border-[1px]">Nom</th>
+                                <th className="border-[1px]">Prénoms</th>
+                                <th className="border-[1px]">Adresse</th>
+                                <th className="border-[1px]">Numéro</th>
+                                <th className="border-[1px]">Sexe</th>
+                                <th className="border-[1px]">Score</th>
+                                </tr>
+                            </thead>
+                            <tbody className="text-sm">
+                                {Rank.map((data, index) => 
+                                        <tr key={data.id} className="shadow-md my-2 py-4">
+                                            <td className="p-4 text-lg font-semibold">{index + 1}</td>
+                                            <td className="flex justify-center"> 
+                                                <div className="m-[0.2rem]">
+                                                    <img className="w-10 h-10 lg:w-16 lg:h-16 " src={LoadImage(data.Image)} />
+                                                </div>
+                                            </td>
+                                            <td>{data.Name}</td>
+                                            <td>{data.First_name}</td>
+                                            <td>{data.Adress}</td>
+                                            <td>{data.Phone}</td>
+                                            <td>{data.Gender}</td>
+                                            <td>{data.Score.toString()}</td>
+                                        </tr>
                                 
-                            )}
-                            
-                        </tbody>
-                    </table>
+                                
+                                    
+                                )}
+                                
+                            </tbody>
+                        </table>
+                    </div>
             </div>
         </div>
         
