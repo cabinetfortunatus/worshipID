@@ -27,7 +27,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device("cpu")
 current_path = Path.cwd()
 model_path = current_path / "app" / "controlleur" / "yolov8n-face.pt"
 cap_lock = threading.Lock()
