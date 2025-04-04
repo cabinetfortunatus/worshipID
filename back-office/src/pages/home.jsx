@@ -6,9 +6,9 @@ import { base64StringToBlob } from "blob-util";
 function Home(){
     const User = useAuthUser()
     const [showUsername, setShowUsername] = useState(false);
-    const [video_url, setVideo_url] = useState("http://192.168.1.172:8080/video");
+    const [video_url, setVideo_url] = useState("http://192.168.1.171:8080/video");
     const camList = ({
-        "url1":"http://192.168.1.172:8080/video" ,
+        "url1":"http://192.168.1.171:8080/video" ,
         "url2":"http://localhost:5000/recognition/video_stream", 
         "url3":"",
         "url4":""
