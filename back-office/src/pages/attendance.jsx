@@ -208,7 +208,7 @@ function Attendance(){
                     isOpen={modIsOpen}
                     onRequestClose={CloseMod}
                     contentLabel={PresenceState ? "Liste des membres présents:":"Liste des membres absents"}
-                    className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 h-auto w-[80%] md:w-[40%] bg-white rounde-lg border-2 p-2 shadow-md overflow-x-auto"
+                    className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 h-auto w-[80%] md:w-[40%] bg-white rounde-lg border-2 p-2 shadow-md overflow-x-auto."
                     ariaHideApp={false}>
                         <h2 className="text-lg font-semibold mb-4">{PresenceState ? "Liste des membres présents:":"Liste des membres absents:"}<span className="text-lg font-bold ml-2 text-blue-950">{PresenceState ? `${Prensent.length.toString()}`:`${Absent.length.toString()}`}</span></h2>
 

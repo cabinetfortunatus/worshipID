@@ -18,6 +18,7 @@ function Event(){
     const [TextSearch, setTextSearch] = useState("")
     const [SecondModal, setSecondModal] =  useState(false)
     const [trigger, setTrigger] = useState(false)
+    const [message, setMessage] = useState('')
     const [editEvent, setEditEvent] = useState({
         "Id_admin": null,
         "Code_event": "",
@@ -125,6 +126,7 @@ function Event(){
         let response = await axios.post(`recognition/start_event/${event_id}`)
         .then((response) => {
             console.log(response.data)
+            setMessage(`L'évènement [ ${eventData.filter((data) => data.id == event_id)?.[0]?.Name_event} ] est en cours...`)
         })
         .catch((error) => {
             console.log(error)
@@ -137,6 +139,7 @@ function Event(){
         let response = await axios.post(`recognition/stop_event/${event_id}`)
         .then((response) => {
             console.log(response.data)
+            setMessage(`L'évènement [ ${eventData.filter((data) => data.id == event_id)?.[0]?.Name_event} ] est arrêté`)
         })
         .catch((error) => {
             console.log(error)
@@ -393,7 +396,7 @@ function Event(){
                     <button type="button" className="text-white absolute end-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 " onClick={HandleSearch}>Chercher...</button>
                 </div>
             </div>
-
+            <div className="relative w-full h-4 justify-center font-semibold my-4 flex"><span>Statut:</span>&nbsp;<div className=" text-blue-950 font-semibold ">{message}</div></div>
             <DataTable 
             columns={columns} 
             data={FilteredData} 
