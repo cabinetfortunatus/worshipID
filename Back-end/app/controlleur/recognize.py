@@ -96,7 +96,7 @@ class ReconnaissanceManager:
                     small_img = cv2.resize(img, (0,0), fx=0.4, fy=0.4)
                     rgb_img = cv2.cvtColor(small_img, cv2.COLOR_BGR2RGB)
                     
-                    face_locs = face_recognition.face_locations(rgb_img, model="hog")
+                    face_locs = face_recognition.face_locations(rgb_img, model="cnn")
                     if not face_locs:
                         continue
                         
