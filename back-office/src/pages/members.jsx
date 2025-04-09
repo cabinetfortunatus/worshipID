@@ -167,7 +167,7 @@ function Member(){
        
         formData.append("id_admin", User().Id)
         formData.append("id_member", id_member)
-        formData.append("Username", AccountData.First_name+AccountData.Name)
+        formData.append("Username", AccountData.First_name+id_member)
         formData.append("Password", "test001")
 
         if(confirm){
