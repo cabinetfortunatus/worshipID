@@ -20,14 +20,14 @@ services:
       - mysql_data:/var/lib/mysql
       - ./db/sql:/docker-entrypoint-initdb.d
     ports:
-      - "3306:3306"
+      - "3307:3306"
     networks:
       - app_network
     restart: always
 
   back-end:
     build:
-      context: ./back-end
+      context: ./Back-end
       dockerfile: Dockerfile
     command: python main.py
     ports:
