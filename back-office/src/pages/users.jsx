@@ -154,7 +154,7 @@ function Users(){
 
    
     return(<>
-        <div>
+        <div className="bg-white"> 
 
              <div className="relative max-w-md mx-auto">   
                 <label htmlFor="default-search" className="mb-2 text-sm font-medium text-gray-900 sr-only">Chercher...</label>
@@ -180,7 +180,7 @@ function Users(){
                     isOpen={modIsOpen}
                     onRequestClose={CloseMod}
                     contentLabel="Modifier un utilisateur"
-                    className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 h-auto w-[80%] md:w-[40%] bg-white rounde-lg border-2 p-2 shadow-md"
+                    className="absolute  z-50 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 h-auto w-[80%] md:w-[40%] bg-white rounde-lg border-2 p-2 shadow-md"
                     ariaHideApp={false}>
                     <h2 className="text-lg font-semibold mb-4">Modifier</h2>
                     {editUser && (

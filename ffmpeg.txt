@@ -1,0 +1,1 @@
+ffmpeg -rtsp_transport tcp -i rtsp://192.168.1.172:8080/h264_ulaw.sdp -c:v libx264 -preset veryfast -an -f flv rtmp://localhost:1935/live/stream

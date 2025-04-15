@@ -12,6 +12,7 @@ from sqlalchemy.exc import SQLAlchemyError
 import time
 
 
+
 recognition_bp = Blueprint('recognition', __name__)
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -106,7 +107,10 @@ def process_frames():
 
 def start_video_processing():
     global cap
-    cap.open("http://192.168.88.8:8080/video")  
+    with current_app.app_context():
+        video_url = current_app.config.get("VIDEO_URL")
+        print(video_url)
+    cap.open(f"{video_url}/video")  
     if not cap.isOpened():
         print("Erreur : Impossible d'ouvrir le flux vidéo.")
         return

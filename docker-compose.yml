@@ -1,4 +1,16 @@
 services:
+  rtmp-server:
+    image: alfg/nginx-rtmp
+    ports:
+      - "1935:1935"
+      - "8080:80"
+    volumes:
+      - ./nginx.conf:/opt/nginx/nginx.conf:ro
+      - ./mime.types:/opt/nginx/mime.types:ro
+    command: ["/bin/sh", "-c", "nginx -g 'daemon off;' -c /opt/nginx/nginx.conf"]
+    restart: always
+    networks:
+      - app_network
   back-office:
     build:
       context: ./back-office
@@ -38,8 +50,6 @@ services:
     networks:
       - app_network
     restart: always
-
-
 
 volumes:
   mysql_data:
