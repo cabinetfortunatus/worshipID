@@ -17,6 +17,9 @@ from datetime import datetime
 import time
 import logging
 from pathlib import Path
+from app.url_config  import get_video_url
+
+
 
 recognition_bp = Blueprint('recognition', __name__)
 
@@ -200,7 +203,8 @@ class ReconnaissanceManager:
             logger.error(f"DB error: {e}")
 
     def start_capture(self):
-        self.cap.open("http://192.168.1.171:8080/video")
+        video_url = "rtmp://rtmp-server:1935/live/stream"
+        self.cap.open(video_url)
         if not self.cap.isOpened():
             logger.error("Failed to open video stream")
             return
@@ -258,8 +262,6 @@ def start_event(event_id):
 
 @recognition_bp.route('/stop_event/<int:event_id>', methods=['POST'])
 def stop_event(event_id):
-   
-    with current_app.app_context():
         event = Event.query.get(event_id)
         if not event:
             return jsonify({"error": "Event not found"}), 404
@@ -275,7 +277,6 @@ def stop_event(event_id):
         cv2.destroyAllWindows()
         
         def process_absences_with_app_context():
-            with current_app.app_context():
                 try:
                     process_absences_background()
                 except Exception as e:

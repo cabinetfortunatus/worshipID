@@ -41,8 +41,9 @@ return(<>
             <div className='relative flex flex-col w-full h-full bg-transparent rounded-tl-xl rounded-bl-xl'>
                 {/* <div className='absolute bg-gray-200 opacity-50 -z-10  w-full h-full blur-sm' ></div> */}
                 <h1 className='mb-4 mt-4 font-bold text-2xl text-[#07A889] ml-4'>Se connecter</h1>
-                <p className='text-sm px-4'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Ratione assumenda est cupiditate exercitationem doloremque vitae recusandae, veritatis cumque non expedita quis facilis voluptatem quisquam et numquam quas tempore ducimus aut.
-                   
+                <h1 className='w-full text-center my-2'>Bienvenue sur <span className='font-semibold text-lg'>WorshipID</span> !</h1>
+                <p className='text-sm px-4'>
+                    Nous sommes ravis de vous accueillir sur notre plateforme dédiée à la gestion des présences dans votre église grâce à la technologie de reconnaissance faciale. WorshipID simplifie et sécurise l'enregistrement des participants à vos services religieux, en offrant une solution rapide et moderne.
                 </p>
                 <form className='relative flex flex-col items-center justify-center mx-4 mt-8' onSubmit={handleSubmit} >
                     <div className="relative z-0 w-full mb-5 group">

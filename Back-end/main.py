@@ -7,11 +7,9 @@ from app.modele.model_groups import Groups
 from app.modele.model_members import Members
 from app.modele.model_presence import Presence
 from app.modele.model_users import Users
-
 from flask_jwt_extended import JWTManager
 
 app = create_app()
-
 
 jwt = JWTManager(app)
 
@@ -27,6 +25,6 @@ def make_shell_context():
         "Presence": Presence,
         "Users": Users
     }
-    
+
 if __name__ =="__main__":
     app.run(host="0.0.0.0")
