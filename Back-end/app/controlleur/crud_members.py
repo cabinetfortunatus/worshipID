@@ -219,3 +219,34 @@ class MemberRanking(Resource):
 
         sorted_members = sorted(ranked_members, key=lambda x: x["Score"].replace('%', ''), reverse=True)
         return sorted_members, 200
+    
+    
+@members_ns.route('/<int:id_member>/groups/<int:id_group>')
+class ManageMemberGroup(Resource):
+    def post(self, id_member, id_group):
+        member = Members.query.get_or_404(id_member)
+        group = Groups.query.get_or_404(id_group)
+        try:
+            member.add_to_group(group)
+            db.session.commit()
+            return {"message": f"Membre {member.id} ajouté au groupe {group.id}."}, 200
+        except ValueError as e:
+            db.session.rollback()
+            return {"message": str(e)}, 400
+        except Exception as e:
+            db.session.rollback()
+            return {"message": f"Erreur : {e}"}, 500
+
+    def delete(self, id_member, id_group):
+        member = Members.query.get_or_404(id_member)
+        group = Groups.query.get_or_404(id_group)
+        try:
+            member.remove_from_group(group)
+            db.session.commit()
+            return {"message": f"Membre {member.id} retiré du groupe {group.id}."}, 200
+        except ValueError as e:
+            db.session.rollback()
+            return {"message": str(e)}, 400
+        except Exception as e:
+            db.session.rollback()
+            return {"message": f"Erreur : {e}"}, 500

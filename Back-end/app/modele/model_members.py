@@ -53,3 +53,9 @@ class Members(db.Model):
     
     def remove_from_all_groups(self):
         self.groups = []
+        
+
+    def remove_from_group(self, group):
+        if group not in self.groups:
+            raise ValueError("Le membre n'appartient pas à ce groupe.")
+        self.groups.remove(group)
