@@ -157,31 +157,35 @@ class EventMembersAbsent(Resource):
                 member.Image = b64encode(member.Image).decode('utf-8')
         return members
         
-@event_ns.route("/<int:id>/stats")
-class EventStats(Resource):
-    def get(self, id):
-        event = Event.query.get_or_404(id)
+@event_ns.route("/stats")
+class AllEventsStats(Resource):
+    def get(self):
+        events = Event.query.all()
+        stats = []
 
-        total_members = 0
-        if event.target_type == "group" and event.Id_group:
-            group = Groups.query.get(event.Id_group)
-            total_members = len(group.members)
-        elif event.target_type == "all_members":
-            total_members = Members.query.count()
+        for event in events:
+            total_members = 0
+            if event.target_type == "group" and event.Id_group:
+                group = Groups.query.get(event.Id_group)
+                total_members = len(group.members) if group else 0
+            elif event.target_type == "all_members":
+                total_members = Members.query.count()
 
-        nb_presents = Presence.query.filter_by(Id_event=id).count()
-        nb_absents = Absence.query.filter_by(Id_event=id).count()
+            nb_presents = Presence.query.filter_by(Id_event=event.id).count()
+            nb_absents = Absence.query.filter_by(Id_event=event.id).count()
 
-        try:
-            taux_participation = (nb_presents / total_members) * 100 if total_members else 0
-        except ZeroDivisionError:
-            taux_participation = 0
+            try:
+                taux_participation = (nb_presents / total_members) * 100 if total_members else 0
+            except ZeroDivisionError:
+                taux_participation = 0
 
-        return {
-            "id_event": id,
-            "nom_evenement": event.Name_event,
-            "nombre_total": total_members,
-            "nombre_present": nb_presents,
-            "nombre_absent": nb_absents,
-            "taux_participation": round(taux_participation, 2)
-        }, 200
+            stats.append({
+                "id_event": event.id,
+                "nom_evenement": event.Name_event,
+                "nombre_total": total_members,
+                "nombre_present": nb_presents,
+                "nombre_absent": nb_absents,
+                "taux_participation": round(taux_participation, 2)
+            })
+
+        return stats, 200
