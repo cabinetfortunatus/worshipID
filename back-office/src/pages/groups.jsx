@@ -35,7 +35,6 @@ function Group(){
         let response = await axios.get('groups')
         .then((response) => {
 
-            console.log("reponse:..."+response.data)
             setGroupData(response.data)
             
         })
@@ -49,7 +48,6 @@ function Group(){
         let response = await axios.get(`groups/${id_group}/members`)
         .then((response) => {
 
-            console.log("reponse groupe membres:..."+response.data)
             setGroupId(id_group)
             setGroupMembers(response.data)
             
@@ -68,7 +66,6 @@ function Group(){
         if(confirm){
         let response = await axios.delete(`groups/${id_group}/members/${id_member}`)
         .then((response) => {
-                console.log(response.data)
                 getGroupMembers(id_group)
         })
         .catch((error) => {
@@ -82,7 +79,6 @@ function Group(){
     const OpenMod = (id) => {
         setmodIsOpen(true);
         setAddstate(false)
-        console.log(id)
         seteditGroup(GroupData.filter((data) => data.id === id)[0]);
        
     };
@@ -124,7 +120,6 @@ function Group(){
     const handleValueChange = (e) => {
         const { name, value } = e.target;
         seteditGroup((prev) => ({ ...prev, [name]: value })); 
-        console.log(editGroup)
     };
 
 
@@ -136,7 +131,6 @@ function Group(){
         formData.append("Fonction", editGroup.Fonction)
  
         if(!addstate) {
-          console.log(formData)
           axios.put(`groups/${editGroup.id}`, formData)
             .then(() => {
               alert('Modification effectuée');
@@ -148,7 +142,6 @@ function Group(){
             });
         }
         if(addstate){
-            console.log(formData)
             axios.post(`groups/`, formData)
             .then(() => {
               alert('Ajout effectuée');
