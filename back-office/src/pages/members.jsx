@@ -168,7 +168,7 @@ function Member(){
         formData.append("id_admin", User().Id)
         formData.append("id_member", id_member)
         formData.append("Username", AccountData.First_name+id_member)
-        formData.append("Password", AccountData.First_name+id_member+2025)
+        formData.append("Password", AccountData.First_name+(id_member+2025))
 
         if(confirm){
           axios.post(`users/signUp`, formData)
