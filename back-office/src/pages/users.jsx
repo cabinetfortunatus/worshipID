@@ -21,8 +21,6 @@ function Users(){
     const getUser = async () => {
         let response = await axios.get('users/signUp')
         .then((response) => {
-
-            console.log(response.data)
             setUserData(response.data)
             
         })
@@ -34,7 +32,6 @@ function Users(){
         })
     }
     const HandleSearch = () => { TextSearch === "" ? userData :
-        console.log(userData)
         setFilteredData(userData.filter((item) => {
             return (
               item.id && item.id.toString().includes(TextSearch.toLowerCase()) ||
@@ -49,7 +46,6 @@ function Users(){
     }
     const OpenMod = (id) => {
         setmodIsOpen(true);
-        console.log(id)
         seteditUser(userData.filter((data) => data.id === id)[0]);
        
     };
@@ -62,7 +58,6 @@ function Users(){
     const handleValueChange = (e) => {
         const { name, value } = e.target;
         seteditUser((prev) => ({ ...prev, [name]: value })); 
-        console.log(editUser)
     };
 
 
@@ -76,7 +71,6 @@ function Users(){
             formData.append("Password", editUser.new_password)
         }
     
-        console.log(formData)
         axios.put(`users/signUp/${editUser.id}`, formData)
         .then(() => {
             alert('Modification effectuée');
