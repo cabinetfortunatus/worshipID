@@ -25,8 +25,6 @@ function Attendance(){
     const getEvent = async () => {
         let response = await axios.get('event')
         .then((response) => {
-
-            console.log("event data:"+response.data)
             seteventData(response.data)
             setFilteredData(response.data)
             
@@ -43,7 +41,6 @@ function Attendance(){
         let response = await axios.get(`event/${Id_envent}/MembersPresent`)
         .then((response) => {
 
-            console.log("event data:"+response.data)
             setPrensent(response.data)
             setCurrentEvent(Name_event)
        
@@ -61,7 +58,6 @@ function Attendance(){
         let response = await axios.get(`event/${Id_envent}/MembersAbsent`)
         .then((response) => {
 
-            console.log("event data:"+response.data)
             setAbsent(response.data)
             setCurrentEvent(Name_event)
         })
@@ -81,7 +77,6 @@ function Attendance(){
     const OpenAbsent = (id) => {
         setPresenceState(false)
         setmodIsOpen(true);
-        console.log(id)
         
     };
     const CloseMod = () => {
@@ -94,7 +89,6 @@ function Attendance(){
         setTextSearch(e.target.value)
     }
     const HandleSearch = () => { TextSearch === "" ? eventData :
-        console.log(eventData)
         setFilteredData(eventData.filter((item) => {
             return (
               item.Id_admin && item.Id_admin.toString().toLowerCase().includes(TextSearch) ||
