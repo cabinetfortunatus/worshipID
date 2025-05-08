@@ -21,7 +21,6 @@ function Home(){
     const set_url = async () =>{
         let response = await axios.post("set-video-url", {"url": video_url})
         .then((response) => {
-            console.log(response.data)
             alert(`L\'url de streaming est configuré: ${video_url}`)
         })
         .catch((error) => {
