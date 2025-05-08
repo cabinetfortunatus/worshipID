@@ -39,7 +39,6 @@ function Event(){
         let response = await axios.get('event')
         .then((response) => {
 
-            console.log("event data:"+response.data)
             seteventData(response.data)
             setFilteredData(response.data)
             
@@ -54,8 +53,6 @@ function Event(){
     const getGroup = async () => {
         let response = await axios.get('groups')
         .then((response) => {
-
-            console.log("reponse:..."+response.data)
             setGroupData(response.data)
             
         })
@@ -72,11 +69,9 @@ function Event(){
 
     const GetGroupMember = async (Id_group,target_type) => {
         if(target_type === "all_members"){
-            console.log(target_type)
             let response = await axios.get(`members`)
             .then((response) => {
 
-                console.log("Membre-Groupe:11111"+response.data) 
                 setParticipants(response.data) 
                 
             })
@@ -84,17 +79,14 @@ function Event(){
                 console.log(error)
             })
             .finally(() =>{
-                console.log("partici"+Participants)
                 ShowList()
                 
             })
         }
         else{
-            console.log(target_type)
             let response = await axios.get(`groups/${Id_group}/members`)
             .then((response) => {
 
-                console.log("Membre-Groupe:222222"+response.data) 
                 setParticipants(response.data) 
                 
             })
@@ -102,7 +94,6 @@ function Event(){
                 console.log(error)
             })
             .finally(() =>{
-                console.log("particip..."+Participants)
                 ShowList()
                 
             })
@@ -113,7 +104,6 @@ function Event(){
     }
     const GetGroupName = (Id_group) =>{
        let GpName =  GroupData.find((data) => data.id === Id_group)?.Name_group
-       console.log(GpName)
        if (GpName == null) {
             return "Tous les membres"
        }
@@ -125,7 +115,6 @@ function Event(){
     const StartEvent = async (event_id) => {
         let response = await axios.post(`recognition/start_event/${event_id}`)
         .then((response) => {
-            console.log(response.data)
             setMessage(`L'évènement [ ${eventData.filter((data) => data.id == event_id)?.[0]?.Name_event} ] est en cours...`)
         })
         .catch((error) => {
@@ -138,7 +127,6 @@ function Event(){
     const StopEvent = async (event_id) => {
         let response = await axios.post(`recognition/stop_event/${event_id}`)
         .then((response) => {
-            console.log(response.data)
             setMessage(`L'évènement [ ${eventData.filter((data) => data.id == event_id)?.[0]?.Name_event} ] est arrêté`)
         })
         .catch((error) => {
@@ -151,7 +139,6 @@ function Event(){
     const OpenMod = (id) => {
         setmodIsOpen(true);
         setAddstate(false)
-        console.log(id)
         setEditEvent(eventData.filter((data) => data.id === id)[0]);
        
     };
@@ -165,7 +152,6 @@ function Event(){
     };
     
     const handleAdd = () => {
-        console.log("ireto : "+GroupData)
         setmodIsOpen(true);
         setAddstate(true);
         setEditEvent({
@@ -182,14 +168,12 @@ function Event(){
     const handleValueChange = (e) => {
         const { name, value } = e.target;
         setEditEvent((prev) => ({ ...prev, [name]: value })); 
-        console.log(editEvent)
     };
     
     const HandleSearchInput = (e) => {
         setTextSearch(e.target.value)
     }
     const HandleSearch = () => { TextSearch === "" ? eventData :
-        console.log(eventData)
         setFilteredData(eventData.filter((item) => {
             return (
               item.Id_admin && item.Id_admin.toString().toLowerCase().includes(TextSearch) ||
@@ -216,8 +200,6 @@ function Event(){
             formData.append("Id_group", editEvent.Id_group)
          }
         if(!addstate) {
-          console.log(formData)
-          console.log(editEvent)
           axios.put(`event/${editEvent.id}`, formData)
             .then(() => {
               alert('Modification effectuée');
@@ -229,7 +211,6 @@ function Event(){
             });
         }
         if(addstate){
-            console.log(formData)
             axios.post('event', formData)
             .then(() => {
               alert('Ajout effectué');
