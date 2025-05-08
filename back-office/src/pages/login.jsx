@@ -21,8 +21,6 @@ const handleLogin = async (e) => {
     e.preventDefault();
     setisLogLoading(true)
     await DoLogin(username, password).finally(() => {setisLogLoading(false)})
-   
-    console.log({username, password, error_msg})
     
   }
   
