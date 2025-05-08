@@ -43,7 +43,6 @@ function Admin(){
     const OpenMod = (id) => {
         setmodIsOpen(true);
         setAddstate(false)
-        console.log(id)
         seteditUser(userData.filter((data) => data.id === id)[0]);
        
     };
@@ -66,7 +65,6 @@ function Admin(){
     const handleValueChange = (e) => {
         const { name, value } = e.target;
         seteditUser((prev) => ({ ...prev, [name]: value })); 
-        console.log(editUser)
     };
     
     const handleImageFile = (e) => {
@@ -81,7 +79,6 @@ function Admin(){
         formData.append("Permission", editUser.Permission)
         formData.append("Image", ImageFile)
         if(!addstate) {
-          console.log(formData)
           axios.put(`Admin/signUp/${editUser.id}`, formData)
             .then(() => {
               alert('Modification effectuée');
@@ -93,7 +90,6 @@ function Admin(){
             });
         }
         if(addstate && editUser.Password===editUser.confirm){
-            console.log(formData)
             axios.post(`Admin/signUp`, formData)
             .then(() => {
               alert('Ajout effectuée');
