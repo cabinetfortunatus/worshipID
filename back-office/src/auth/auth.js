@@ -15,7 +15,6 @@ export const Authentication =() => {
             console.log({username,password})
             const response = await axios.post('Admin/Login', {"Username":username, "Password":password})
             const {access_token, refresh_token, Permission, Image, Id} = response.data
-            console.log(response.data)
             Login({
                 token: access_token, 
                 expiresIn:300,
