@@ -37,7 +37,6 @@ function Member(){
         let response = await axios.get('members')
         .then((response) => {
 
-            console.log(response.data)
             setmemberData(response.data)
             setFilteredData(response.data)
             
@@ -52,8 +51,6 @@ function Member(){
     const getGroup = async () => {
         let response = await axios.get('groups')
         .then((response) => {
-
-            console.log("reponse:..."+response.data)
             setGroupList(response.data)
             
         })
@@ -70,7 +67,6 @@ function Member(){
     const OpenMod = (id) => {
         setmodIsOpen(true);
         setAddstate(false)
-        console.log(id)
         seteditMember(memberData.filter((data) => data.id === id)[0]);
        
     };
@@ -96,7 +92,6 @@ function Member(){
     const handleValueChange = (e) => {
         const { name, value } = e.target;
         seteditMember((prev) => ({ ...prev, [name]: value })); 
-        console.log(editMember)
     };
     
     const handleImageFile = (e) => {
@@ -106,7 +101,6 @@ function Member(){
         setTextSearch(e.target.value)
     }
     const HandleSearch = () => { TextSearch === "" ? memberData :
-        console.log(memberData)
         setFilteredData(memberData.filter((item) => {
             return (
               item.Name && item.Name.toLowerCase().includes(TextSearch.toLowerCase()) ||
@@ -133,8 +127,6 @@ function Member(){
             formData.append("Image", ImageFile)
         
         if(!addstate) {
-          console.log(formData)
-          console.log(editMember)
           axios.put(`members/${editMember.id}`, formData)
             .then(() => {
               alert('Modification effectuée');
@@ -146,7 +138,6 @@ function Member(){
             });
         }
         if(addstate){
-            console.log(formData)
             axios.post(`members`, formData)
             .then(() => {
               alert('Ajout effectuée');
