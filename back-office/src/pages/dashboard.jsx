@@ -43,7 +43,6 @@ function Dashboard(){
         let response = await axios.get('Admin/signUp')
         .then((response) => {
 
-            console.log(response.data)
             setAdmin(response.data)
             
         })
@@ -57,7 +56,6 @@ function Dashboard(){
     const getMember = async () => {
         let response = await axios.get('members')
         .then((response) => {
-            console.log("member"+response.data)
             setMembers(response.data)
             
         })
@@ -71,7 +69,6 @@ function Dashboard(){
     const getRanking = async () => {
         let response = await axios.get('members/ranking')
         .then((response) => {
-            console.log("rank"+response.data)
             setRank(response.data)
             
         })
@@ -97,8 +94,6 @@ function Dashboard(){
     const getEvent = async () => {
         let response = await axios.get('event')
         .then((response) => {
-
-            console.log("event data:"+response.data)
             setEvent(response.data)
 
             
@@ -114,7 +109,6 @@ function Dashboard(){
         let response = await axios.get(`event/${id_envent}/MembersPresent`)
         .then((response) => {
 
-            console.log("present data:"+response.data)
             setPresent(response.data)
        
             
@@ -131,7 +125,6 @@ function Dashboard(){
         let response = await axios.get(`event/${id_envent}/MembersAbsent`)
         .then((response) => {
 
-            console.log("event data:"+response.data)
             setAbsent(response.data)
         })
         .catch((error) => {
@@ -142,9 +135,7 @@ function Dashboard(){
         })
     }
     const GetGroupMember = async (Id_group = Event.filter((data) => data.id == selectedEvent)[0].Id_group,target_type = Event.filter((data) => data.id == selectedEvent)[0].target_type) => {
-        console.log("ito target"+target_type)
         if(target_type === "all_members"){
-            console.log(target_type)
             let response = await axios.get(`members`)
             .then((response) => {
 
@@ -159,7 +150,6 @@ function Dashboard(){
             })
         }
         else{
-            console.log(target_type)
             let response = await axios.get(`groups/${Id_group}/members`)
             .then((response) => {
                 setParticipants(response.data) 
@@ -186,7 +176,6 @@ function Dashboard(){
         let admin_admin = Admin.filter((data) => data.Permission == "admin")
         let admin_simple = Admin.filter((data) => data.Permission == "simple")
     
-        console.log("Admin"+admin_admin)
         setOption((prev) => ({...prev, ["nb_admin"]:Admin.length.toString()}))
         setOption((prev) => ({...prev, ["nb_admin_admin"]:admin_admin.length}))
         setOption((prev) => ({...prev, ["nb_admin_simple"]:admin_simple.length}))
@@ -259,7 +248,6 @@ function Dashboard(){
     },[Admin, Groups, Event, Members])
 
     useEffect(() =>{
-    console.log(selectedEvent)
     if(check != null){
       GetGroupMember()
     }
@@ -274,7 +262,6 @@ function Dashboard(){
 
     useEffect(() => {
         AllStat()
-        console.log(EventProp)
     }, [Present, Absent])
     
     
