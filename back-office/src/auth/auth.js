@@ -12,7 +12,6 @@ export const Authentication =() => {
     const [error_msg, setError_msg]   = useState('');
     const DoLogin  = async  (username, password) => {
         try {
-            console.log({username,password})
             const response = await axios.post('Admin/Login', {"Username":username, "Password":password})
             const {access_token, refresh_token, Permission, Image, Id} = response.data
             Login({
