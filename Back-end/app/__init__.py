@@ -25,7 +25,7 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(DevConfig)
     db.init_app(app)
-    CORS(app, resources={r"/*": {"origins": "*"}},
+    CORS(app, resources={r"/*": {"origins": "http://173.212.195.91:3001"}},
         methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         allow_headers=["Content-Type", "Authorization"],
         expose_headers=["Authorization"],
@@ -50,4 +50,5 @@ def create_app():
     api.add_namespace(members_ns)
     api.add_namespace(presence_ns)
     api.add_namespace(users_ns)
+
     return app 
